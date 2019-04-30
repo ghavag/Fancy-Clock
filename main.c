@@ -8,30 +8,46 @@
 #include <stdio.h>
 #include <util/delay.h>
 
-//#include "main.h"
+#include "main.h"
+#include "time.h"
 #include "lib/uart/uart.h"
 
 int main(void) {
+  unsigned char s, m, h;
 
-    /* UART initialization part */
-    uart_init();
-    stdout = &uart_output;
-    stdin  = &uart_input;
+  /* Init timer */
+  time_init();
 
-    char input;
-    unsigned int i = 0;
+  /* UART initialization part */
+  uart_init();
+  stdout = &uart_output;
+  stdin  = &uart_input;
 
-    puts("Hello world!");
+  puts("Please set the time!");
 
-    // Call the main loop
-    while(1) loop();
+  printf("Hours: ");
+  scanf("%hhu", &h);
 
-    return 0;
+  printf("\nMinutes: ");
+  scanf("%hhu", &m);
+
+  printf("\nSeconds: ");
+  scanf("%hhu", &s);
+
+  printf("\n");
+
+  set_time(h, m, s);
+
+  // Call the main loop
+  while(1) loop();
+
+  return 0;
 }
 
 void loop() {
-  static unsigned int i = 0;
+  unsigned char s, m, h;
 
   _delay_ms(1000);
-  printf("Print %i\n", i++);
+  get_time(&h, &m, &s);
+  printf("%02u:%02u:%02u\n", h, m, s);
 }

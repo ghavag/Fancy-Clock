@@ -35,7 +35,7 @@ ISR (TIMER0_COMPA_vect)
   ms += 16;
   millis = ms;
 
-  if (ms % 1000 < 9) {
+  if ((ms % 1000) == 8 || (ms % 1000) == 992) {
     unsigned char s = seconds;
     s = (s + 1) % 60;
     seconds = s;

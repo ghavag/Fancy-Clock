@@ -1,5 +1,5 @@
 /*
-  DCF77.c - DCF77 library 
+  DCF77.c - DCF77 library
   Copyright (c) Thijs Elenbaas 2012
 
   This library is free software; you can redistribute it and/or
@@ -15,31 +15,37 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  
-  11 Apr 2012 - initial release 
+
+  11 Apr 2012 - initial release
   23 Apr 2012 - added UTC support
   2  Jul 2012 - minor bugfix and additional noise rejection
 */
 
-#include <DCF77.h>       //https://github.com/thijse/Arduino-Libraries/downloads
-#include <Time.h>        //http://playground.arduino.cc/code/time
-#include <Utils.h>
+#include "DCF77.h"       //https://github.com/thijse/Arduino-Libraries/downloads
+#include "../../time.h"
+//#include "../uart/uart.h"
+//#include <Utils.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <avr/io.h>
 
 #define _DCF77_VERSION 1_0_0 // software version of this library
 
-using namespace Utils;
+//using namespace Utils;
 
 /**
  * Constructor
  */
-DCF77::DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank) 
+DCF77::DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank)
 {
 	dCF77Pin     = DCF77Pin;
-	dCFinterrupt = DCFinterrupt;	
+	dCFinterrupt = DCFinterrupt;
 	pulseStart   = OnRisingFlank ? HIGH : LOW;
-	
-	if (!initialized) {  
-		pinMode(dCF77Pin, INPUT);	
+
+	if (!initialized) {
+		// TODO: Pin setup should be done here
+		// but is currently done in main.c
+		//pinMode(dCF77Pin, INPUT);
 		initialize();
 	  }
 	initialized = true;
@@ -48,8 +54,8 @@ DCF77::DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank)
 /**
  * Initialize parameters
  */
-void DCF77::initialize(void) 
-{	
+void DCF77::initialize(void)
+{
 	leadingEdge           = 0;
 	trailingEdge          = 0;
 	PreviousLeadingEdge   = 0;
@@ -67,23 +73,26 @@ void DCF77::initialize(void)
 /**
  * Start receiving DCF77 information
  */
-void DCF77::Start(void) 
+void DCF77::Start(void)
 {
-	attachInterrupt(dCFinterrupt, int0handler, CHANGE);
+	// TODO: Interrupt setup should be done
+	// here but is currently done in main.c
+	//attachInterrupt(dCFinterrupt, int0handler, CHANGE); // TODO
 }
 
 /**
  * Stop receiving DCF77 information
  */
-void DCF77::Stop(void) 
+void DCF77::Stop(void)
 {
-	detachInterrupt(dCFinterrupt);	
+	// TODO: Interrupt setup should be done here
+	//detachInterrupt(dCFinterrupt); // TODO
 }
 
 /**
  * Initialize buffer for next time update
  */
-inline void DCF77::bufferinit(void) 
+inline void DCF77::bufferinit(void)
 {
 	runningBuffer    = 0;
 	bufferPosition   = 0;
@@ -93,57 +102,59 @@ inline void DCF77::bufferinit(void)
  * Interrupt handler that processes up-down flanks into pulses and stores these in the buffer
  */
 void DCF77::int0handler() {
-	int flankTime = millis();
-	byte sensorValue = digitalRead(dCF77Pin);
+	int flankTime = millis(); // TODO
+	//uint8_t sensorValue = digitalRead(dCF77Pin); // TODO
+	// TODO: Pin should not hardcoded here
+	uint8_t sensorValue = (PIND & _BV(PIND2)) ? HIGH : LOW;
 
 	// If flank is detected quickly after previous flank up
 	// this will be an incorrect pulse that we shall reject
 	if ((flankTime-PreviousLeadingEdge)<DCFRejectionTime) {
-		LogLn("rCT");
+		//LogLn("rCT");
 		return;
 	}
-	
+
 	// If the detected pulse is too short it will be an
 	// incorrect pulse that we shall reject as well
 	if ((flankTime-leadingEdge)<DCFRejectPulseWidth) {
-	    LogLn("rPW");
+	    //LogLn("rPW");
 		return;
 	}
-	
+
 	if(sensorValue==pulseStart) {
 		if (!Up) {
 			// Flank up
 			leadingEdge=flankTime;
-			Up = true;		                
-		} 
+			Up = true;
+		}
 	} else {
 		if (Up) {
 			// Flank down
 			trailingEdge=flankTime;
-			int difference=trailingEdge - leadingEdge;            
-          		
+			int difference=trailingEdge - leadingEdge;
+
 			if ((leadingEdge-PreviousLeadingEdge) > DCFSyncTime) {
 				finalizeBuffer();
-			}         
-			PreviousLeadingEdge = leadingEdge;       
+			}
+			PreviousLeadingEdge = leadingEdge;
 			// Distinguish between long and short pulses
 			if (difference < DCFSplitTime) { appendSignal(0); } else { appendSignal(1); }
-			Up = false;	 
+			Up = false;
 		}
-	}  
+	}
 }
 
 /**
  * Add new bit to buffer
  */
 inline void DCF77::appendSignal(unsigned char signal) {
-	Log(signal, DEC);
-	runningBuffer = runningBuffer | ((unsigned long long) signal << bufferPosition);  
+	//Log(signal, DEC);
+	runningBuffer = runningBuffer | ((unsigned long long) signal << bufferPosition);
 	bufferPosition++;
 	if (bufferPosition > 59) {
-		// Buffer is full before at end of time-sequence 
+		// Buffer is full before at end of time-sequence
 		// this may be due to noise giving additional peaks
-		LogLn("EoB");
+		//LogLn("EoB");
 		finalizeBuffer();
 	}
 }
@@ -154,18 +165,18 @@ inline void DCF77::appendSignal(unsigned char signal) {
 inline void DCF77::finalizeBuffer(void) {
   if (bufferPosition == 59) {
 		// Buffer is full
-		LogLn("BF");
+		//LogLn("BF");
 		// Prepare filled buffer and time stamp for main loop
 		filledBuffer = runningBuffer;
-		filledTimestamp = now();
+		//filledTimestamp = now();
 		// Reset running buffer
 		bufferinit();
-		FilledBufferAvailable = true;    
+		FilledBufferAvailable = true;
     } else {
 		// Buffer is not yet full at end of time-sequence
-		LogLn("EoM");
+		//LogLn("EoM");
 		// Reset running buffer
-		bufferinit();      
+		bufferinit();
     }
 }
 
@@ -180,46 +191,48 @@ bool DCF77::receivedTimeUpdate(void) {
 	}
 	// if buffer is filled, we will process it and see if this results in valid parity
 	if (!processBuffer()) {
-		LogLn("Invalid parity");
-		return false;
-	}
-	
-	// Since the received signal is error-prone, and the parity check is not very strong, 
-	// we will do some sanity checks on the time
-	time_t processedTime = latestupdatedTime + (now() - processingTimestamp);
-	if (processedTime<MIN_TIME || processedTime>MAX_TIME) {
-		LogLn("Time outside of bounds");
+		//LogLn("Invalid parity");
 		return false;
 	}
 
+	return true;
+
+	// Since the received signal is error-prone, and the parity check is not very strong,
+	// we will do some sanity checks on the time
+	/*unsigned long processedTime = latestupdatedTime + (now() - processingTimestamp);
+	if (processedTime<MIN_TIME || processedTime>MAX_TIME) {
+		//LogLn("Time outside of bounds");
+		return false;
+	}*/
+
 	// If received time is close to internal clock (2 min) we are satisfied
-	time_t difference = abs(processedTime - now());
+	/*unsigned long difference = abs(processedTime - now()); //TODO
 	if(difference < 2*SECS_PER_MIN) {
-		LogLn("close to internal clock");
+		//LogLn("close to internal clock");
 		storePreviousTime();
 		return true;
-	}
+	}*/
 
 	// Time can be further from internal clock for several reasons
 	// We will check if lag from internal clock is consistent
-	time_t shiftPrevious = (previousUpdatedTime - previousProcessingTimestamp);
-	time_t shiftCurrent = (latestupdatedTime - processingTimestamp);	
-	time_t shiftDifference = abs(shiftCurrent-shiftPrevious);
+	/*unsigned long shiftPrevious = (previousUpdatedTime - previousProcessingTimestamp);
+	unsigned long shiftCurrent = (latestupdatedTime - processingTimestamp);
+	unsigned long shiftDifference = abs(shiftCurrent-shiftPrevious);
 	storePreviousTime();
 	if(shiftDifference < 2*SECS_PER_MIN) {
-		LogLn("time lag consistent");		
+		//LogLn("time lag consistent");
 		return true;
 	} else {
-		LogLn("time lag inconsistent");
-	}
-	
-	// If lag is inconsistent, this may be because of no previous stored date 
+		//LogLn("time lag inconsistent");
+	}*/
+
+	// If lag is inconsistent, this may be because of no previous stored date
 	// This would be resolved in a second run.
 	return false;
 }
 
 /**
- * Store previous time. Needed for consistency 
+ * Store previous time. Needed for consistency
  */
 void DCF77::storePreviousTime(void) {
 	previousUpdatedTime = latestupdatedTime;
@@ -227,14 +240,14 @@ void DCF77::storePreviousTime(void) {
 }
 
 /**
- * Calculate the parity of the time and date. 
+ * Calculate the parity of the time and date.
  */
-void DCF77::calculateBufferParities(void) {	
-	// Calculate Parity 
-	flags.parityFlag = 0;	
+void DCF77::calculateBufferParities(void) {
+	// Calculate Parity
+	flags.parityFlag = 0;
 	for(int pos=0;pos<59;pos++) {
-		bool s = (processingBuffer >> pos) & 1;  
-		
+		bool s = (processingBuffer >> pos) & 1;
+
 		// Update the parity bits. First: Reset when minute, hour or date starts.
 		if (pos ==  21 || pos ==  29 || pos ==  36) {
 			flags.parityFlag = 0;
@@ -252,18 +265,18 @@ void DCF77::calculateBufferParities(void) {
 
 /**
  * Evaluates the information stored in the buffer. This is where the DCF77
- * signal is decoded 
+ * signal is decoded
  */
-bool DCF77::processBuffer(void) {	
-	
+bool DCF77::processBuffer(void) {
+
 	/////  Start interaction with interrupt driven loop  /////
-	
+
 	// Copy filled buffer and timestamp from interrupt driven loop
 	processingBuffer = filledBuffer;
 	processingTimestamp = filledTimestamp;
 	// Indicate that there is no filled, unprocessed buffer anymore
-	FilledBufferAvailable = false;  
-	
+	FilledBufferAvailable = false;
+
 	/////  End interaction with interrupt driven loop   /////
 
 	//  Calculate parities for checking buffer
@@ -278,16 +291,17 @@ bool DCF77::processBuffer(void) {
     if (flags.parityMin == rx_buffer->P1  &&
         flags.parityHour == rx_buffer->P2 &&
         flags.parityDate == rx_buffer->P3 &&
-		rx_buffer->CEST != rx_buffer->CET) 
-    { 
-      //convert the received buffer into time	  	  	 
+		rx_buffer->CEST != rx_buffer->CET)
+    {
+      //convert the received buffer into time
       time.Second = 0;
 	  time.Minute = rx_buffer->Min-((rx_buffer->Min/16)*6);
       time.Hour   = rx_buffer->Hour-((rx_buffer->Hour/16)*6);
-      time.Day    = rx_buffer->Day-((rx_buffer->Day/16)*6); 
+      time.Day    = rx_buffer->Day-((rx_buffer->Day/16)*6);
       time.Month  = rx_buffer->Month-((rx_buffer->Month/16)*6);
       time.Year   = 2000 + rx_buffer->Year-((rx_buffer->Year/16)*6) -1970;
-	  latestupdatedTime = makeTime(time);	 
+	  //latestupdatedTime = makeTime(time); //TODO
+		printf("Time update: %02u:%02u:%02u\n", time.Hour, time.Minute, time.Second);
 	  CEST = rx_buffer->CEST;
 	  //Parity correct
 	  return true;
@@ -298,48 +312,50 @@ bool DCF77::processBuffer(void) {
 }
 
 /**
- * Get most recently received time 
+ * Get most recently received time
  * Note, this only returns an time once, until the next update
  */
-time_t DCF77::getTime(void)
+// TODO: Reimplement or something.
+unsigned long DCF77::getTime(void)
 {
 	if (!receivedTimeUpdate()) {
 		return(0);
 	} else {
 		// Send out time, taking into account the difference between when the DCF time was received and the current time
-		time_t currentTime =latestupdatedTime + (now() - processingTimestamp);
-		return(currentTime);
+		//unsigned long currentTime =latestupdatedTime + (now() - processingTimestamp); //TODO
+		//return(currentTime);
+		return(1);
 	}
 }
 
 /**
- * Get most recently received time in UTC 
+ * Get most recently received time in UTC
  * Note, this only returns an time once, until the next update
  */
-time_t DCF77::getUTCTime(void)
+/*unsigned long DCF77::getUTCTime(void)
 {
 	if (!receivedTimeUpdate()) {
 		return(0);
 	} else {
 		// Send out time UTC time
 		int UTCTimeDifference = (CEST ? 2 : 1)*SECS_PER_HOUR;
-		time_t currentTime =latestupdatedTime - UTCTimeDifference + (now() - processingTimestamp);
+		unsigned long currentTime =latestupdatedTime - UTCTimeDifference + (now() - processingTimestamp); //TODO
 		return(currentTime);
 	}
-}
+}*/
 
 /**
  * Initialize parameters
  */
 int DCF77::dCF77Pin=0;
 int DCF77::dCFinterrupt=0;
-byte DCF77::pulseStart=HIGH;
+uint8_t DCF77::pulseStart=HIGH;
 
 // Parameters shared between interupt loop and main loop
 
 volatile unsigned long long DCF77::filledBuffer = 0;
 volatile bool DCF77::FilledBufferAvailable= false;
-volatile time_t DCF77::filledTimestamp= 0;
+volatile unsigned long DCF77::filledTimestamp= 0;
 
 // DCF Buffers and indicators
 int DCF77::bufferPosition = 0;
@@ -353,11 +369,9 @@ int DCF77::PreviousLeadingEdge=0;
 bool DCF77::Up= false;
 
 // DCF77 and internal timestamps
-time_t DCF77::latestupdatedTime= 0;
-time_t DCF77::previousUpdatedTime= 0;
-time_t DCF77::processingTimestamp= 0;
-time_t DCF77::previousProcessingTimestamp=0;
+unsigned long DCF77::latestupdatedTime= 0;
+unsigned long DCF77::previousUpdatedTime= 0;
+unsigned long DCF77::processingTimestamp= 0;
+unsigned long DCF77::previousProcessingTimestamp=0;
 unsigned char DCF77::CEST=0;
 DCF77::ParityFlags DCF77::flags = {0,0,0,0};
-
-

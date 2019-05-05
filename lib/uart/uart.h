@@ -1,3 +1,6 @@
+#ifndef _uart_h
+#define _uart_h
+
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -17,3 +20,5 @@ FILE uart_input; // = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* _uart_h */

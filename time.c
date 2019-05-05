@@ -1,6 +1,6 @@
 #include <avr/interrupt.h>
 
-volatile unsigned long millis = 0;
+volatile unsigned long milliseconds = 0;
 
 volatile unsigned char seconds = 0;
 volatile unsigned char minutes = 0;
@@ -30,10 +30,10 @@ ISR (TIMER0_COMPA_vect)
    * copy these to local variables so they can be stored in registers
    * (volatile variables must be read from memory on every access)
    */
-  unsigned long ms = millis;
+  unsigned long ms = milliseconds;
 
   ms += 16;
-  millis = ms;
+  milliseconds = ms;
 
   if ((ms % 1000) == 8 || (ms % 1000) == 992) {
     unsigned char s = seconds;
@@ -78,4 +78,14 @@ void set_time(unsigned char h, unsigned char m, unsigned char s) {
   seconds = s;
 
   SREG = oldSREG;
+}
+
+unsigned long millis() {
+  uint8_t oldSREG = SREG;
+  cli();
+
+  unsigned long ms = milliseconds;
+
+  SREG = oldSREG;
+  return ms;
 }

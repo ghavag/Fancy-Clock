@@ -12,9 +12,9 @@
 #include "main.h"
 #include "time.h"
 #include "lib/uart/uart.h"
-//#include "lib/dcf77/DCF77.h"
+#include "lib/dcf77/DCF77.h"
 
-//DCF77 DCF = DCF77(0, 0);
+DCF77 DCF = DCF77(0, 0);
 
 int main(void) {
   unsigned char s, m, h;
@@ -66,8 +66,11 @@ void loop() {
   _delay_ms(1000);
   get_time(&h, &m, &s);
   printf("%02u:%02u:%02u\n", h, m, s);
+
+  if (DCF.getTime()) printf("There is a new time!\n");
 }
 
 ISR(INT0_vect) {
   PORTB ^= _BV(PB5);
+  DCF.int0handler();
 }

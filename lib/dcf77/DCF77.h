@@ -1,42 +1,61 @@
 #ifndef DCF77_h
 #define DCF77_h
 
-#if ARDUINO >= 100
-#include <Arduino.h> 
-#else
-#include <WProgram.h> 
-#endif
-#include <Time.h>
+//#if ARDUINO >= 100
+//#include <Arduino.h>
+//#else
+//#include <WProgram.h>
+//#endif
+//#include <Time.h>
+#include <stdint.h>
 
 #define MIN_TIME 1334102400     // Date: 11-4-2012
 #define MAX_TIME 4102444800     // Date:  1-1-2100
 
-#define DCFRejectionTime 700    // Pulse-to-Pulse rejection time. 
+#define DCFRejectionTime 700    // Pulse-to-Pulse rejection time.
 #define DCFRejectPulseWidth 50  // Minimal pulse width
 #define DCFSplitTime 180        // Specifications distinguishes pulse width 100 ms and 200 ms. In practice we see 130 ms and 230
 #define DCFSyncTime 1500        // Specifications defines 2000 ms pulse for end of sequence
+
+// Ported from Arduino.h
+#define HIGH 0x1
+#define LOW  0x0
+
+#define SECS_PER_HOUR (3600UL)
+
+/* Begin: Ported from Arduino time library */
+typedef struct  {
+  uint8_t Second;
+  uint8_t Minute;
+  uint8_t Hour;
+  uint8_t Wday;   // day of week, sunday is day 1
+  uint8_t Day;
+  uint8_t Month;
+  uint8_t Year;   // offset from 1970;
+} tmElements_t;
+/* End: Ported from Arduino time library */
 
 class DCF77 {
 private:
 
     //Private variables
-    bool initialized;   
+    bool initialized;
     static int dCF77Pin;
     static int dCFinterrupt;
-    static byte pulseStart;
+    static uint8_t pulseStart;
 
     // DCF77 and internal timestamps
-    static time_t previousUpdatedTime;
-    static time_t latestupdatedTime;            
-    static  time_t processingTimestamp;
-    static  time_t previousProcessingTimestamp;     
+    static unsigned long previousUpdatedTime;
+    static unsigned long latestupdatedTime;
+    static  unsigned long processingTimestamp;
+    static  unsigned long previousProcessingTimestamp;
     static unsigned char CEST;
     // DCF time format structure
     struct DCF77Buffer {
       //unsigned long long prefix       :21;
       unsigned long long prefix     :17;
-      unsigned long long CEST       :1; // CEST 
-      unsigned long long CET        :1; // CET 
+      unsigned long long CEST       :1; // CEST
+      unsigned long long CET        :1; // CET
       unsigned long long unused     :2; // unused bits
       unsigned long long Min        :7; // minutes
       unsigned long long P1         :1; // parity minutes
@@ -48,8 +67,8 @@ private:
       unsigned long long Year       :8; // year (5 -> 2005)
       unsigned long long P3         :1; // parity
     };
-    
-    
+
+
     // DCF Parity format structure
     struct ParityFlags{
         unsigned char parityFlag    :1;
@@ -61,7 +80,7 @@ private:
     // Parameters shared between interupt loop and main loop
     static volatile bool FilledBufferAvailable;
     static volatile unsigned long long filledBuffer;
-    static volatile time_t filledTimestamp;
+    static volatile unsigned long filledTimestamp;
 
     // DCF Buffers and indicators
     static int  bufferPosition;
@@ -73,7 +92,7 @@ private:
     static   int  trailingEdge;
     static   int  PreviousLeadingEdge;
     static   bool Up;
-    
+
     //Private functions
     void static initialize(void);
     void static bufferinit(void);
@@ -84,16 +103,15 @@ private:
     bool static processBuffer(void);
     void static appendSignal(unsigned char signal);
 
-public: 
+public:
     // Public Functions
-    DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank=true); 
-    
-    static time_t getTime(void);
-    static time_t getUTCTime(void);
+    DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank=true);
+
+    static unsigned long getTime(void);
+    static unsigned long getUTCTime(void);
     static void Start(void);
     static void Stop(void);
     static void int0handler();
  };
 
 #endif
-

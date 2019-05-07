@@ -6,7 +6,7 @@ CFLAGS=-mmcu=$(DEVICE) -DF_CPU=$(F_CPU) -Os
 PFLAGS=-p $(DEVICE) -c arduino -P /dev/ttyUSB0 -b 57600
 PROJNAME=uhr2
 #IFILE=$(PROJNAME).c
-SRC = main.cpp time.c lib/uart/uart.c lib/dcf77/DCF77.cpp
+SRC = main.cpp time.cpp lib/uart/uart.c lib/dcf77/DCF77.cpp
 OFILE=$(PROJNAME).elf
 
 all:

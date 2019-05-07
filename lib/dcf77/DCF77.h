@@ -21,20 +21,6 @@
 #define HIGH 0x1
 #define LOW  0x0
 
-#define SECS_PER_HOUR (3600UL)
-
-/* Begin: Ported from Arduino time library */
-typedef struct  {
-  uint8_t Second;
-  uint8_t Minute;
-  uint8_t Hour;
-  uint8_t Wday;   // day of week, sunday is day 1
-  uint8_t Day;
-  uint8_t Month;
-  uint8_t Year;   // offset from 1970;
-} tmElements_t;
-/* End: Ported from Arduino time library */
-
 class DCF77 {
 private:
 

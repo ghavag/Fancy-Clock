@@ -168,7 +168,7 @@ inline void DCF77::finalizeBuffer(void) {
 		//LogLn("BF");
 		// Prepare filled buffer and time stamp for main loop
 		filledBuffer = runningBuffer;
-		//filledTimestamp = now();
+		filledTimestamp = now();
 		// Reset running buffer
 		bufferinit();
 		FilledBufferAvailable = true;
@@ -300,8 +300,8 @@ bool DCF77::processBuffer(void) {
       time.Day    = rx_buffer->Day-((rx_buffer->Day/16)*6);
       time.Month  = rx_buffer->Month-((rx_buffer->Month/16)*6);
       time.Year   = 2000 + rx_buffer->Year-((rx_buffer->Year/16)*6) -1970;
-	  //latestupdatedTime = makeTime(time); //TODO
-		printf("Time update: %02u:%02u:%02u\n", time.Hour, time.Minute, time.Second);
+	  latestupdatedTime = makeTime(time);
+		//printf("Time update: %02u:%02u:%02u\n", time.Hour, time.Minute, time.Second);
 	  CEST = rx_buffer->CEST;
 	  //Parity correct
 	  return true;
@@ -315,16 +315,14 @@ bool DCF77::processBuffer(void) {
  * Get most recently received time
  * Note, this only returns an time once, until the next update
  */
-// TODO: Reimplement or something.
 unsigned long DCF77::getTime(void)
 {
 	if (!receivedTimeUpdate()) {
 		return(0);
 	} else {
 		// Send out time, taking into account the difference between when the DCF time was received and the current time
-		//unsigned long currentTime =latestupdatedTime + (now() - processingTimestamp); //TODO
-		//return(currentTime);
-		return(1);
+		unsigned long currentTime = latestupdatedTime + (now() - processingTimestamp);
+		return(currentTime);
 	}
 }
 

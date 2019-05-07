@@ -32,27 +32,10 @@ int main(void) {
   stdin  = &uart_input;
 
   /* Init the DFC77 decoder library */
-  //DDRD |= _BV(DDD2); // This is pin D2 on Arduino Nano as well
   PORTD |= _BV(PORTD2); // Enable internal pull up resistor
   EICRA |= _BV(ISC00); // Interrupt on any logical change of D2
   EIMSK |= _BV(INT0); // Enable interrupt INT0
   sei();
-
-  /*puts("Please set the time!");
-
-  printf("Hours: ");
-  scanf("%hhu", &h);
-
-  printf("\nMinutes: ");
-  scanf("%hhu", &m);
-
-  printf("\nSeconds: ");
-  scanf("%hhu", &s);
-
-  printf("\n");
-
-  set_time(h, m, s);*/
-  set_time(0, 0, 0);
 
   // Call the main loop
   while(1) loop();
@@ -62,14 +45,25 @@ int main(void) {
 
 void loop() {
   unsigned char s, m, h;
+  unsigned long DCFtime;
+  tmElements_t tm;
 
   _delay_ms(1000);
-  get_time(&h, &m, &s);
-  printf("%02u:%02u:%02u\n", h, m, s);
+  //get_time(&h, &m, &s);
+  tm = getTimeOnly();
+  printf("%02u:%02u:%02u\n", tm.Hour, tm.Minute, tm.Second);
 
-  if (DCF.getTime()) printf("There is a new time!\n");
+  if (DCFtime = DCF.getTime()) {
+    printf("There is a new time!\n");
+    setTime(DCFtime);
+    //printf("The new time is: %02u:%02u:%02u\n", tm.Hour, tm.Minute, tm.Second);
+  }
 }
 
+/*
+ * This is part of the DCF77 library init
+ * TODO: Should be done in DCF77 library directly
+ */
 ISR(INT0_vect) {
   PORTB ^= _BV(PB5);
   DCF.int0handler();

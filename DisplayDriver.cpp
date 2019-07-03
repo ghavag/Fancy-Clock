@@ -67,6 +67,21 @@ void DisplayDriver::setDigit(uint8_t index, uint8_t digit, uint8_t red, uint8_t 
   }
 }
 
+void DisplayDriver::setDigit(uint8_t index, uint8_t digit, cRGB color) {
+  unsigned long long bit_map = getDigitBitMap(digit);
+  cRGB value;
+
+  for (int i = 0; i < LEDCountPerDigit; i++) {
+    if (bit_map & ((unsigned long long) 1 << i)) {
+      value = color;
+    } else {
+      value.r = value.g = value.b = 0;
+    }
+
+    setLED(i + index * LEDCountPerDigit + 2, value);
+  }
+}
+
 uint8_t DisplayDriver::setLED(uint16_t index, cRGB px_value) {
   px_value.r *= (double)max_brightness / 255;
   px_value.g *= (double)max_brightness / 255;

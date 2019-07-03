@@ -1,3 +1,6 @@
+#ifndef TIME_H_
+#define TIME_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,7 +28,10 @@ unsigned long now();
 void setTime(unsigned long t);
 //tmElements_t timeFromStamp(unsigned long timeInput);
 tmElements_t getTimeOnly();
+//tmElements_t getTimeOnly(unsigned long now_ms);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // TIME_H_

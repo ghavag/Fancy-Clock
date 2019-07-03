@@ -155,3 +155,28 @@ tmElements_t getTimeOnly() {
 
   return tm;
 }
+
+/*tmElements_t getTimeOnly(unsigned long now_ms) {
+  tmElements_t tm;
+  uint8_t year;
+  uint8_t month, monthLength;
+  uint32_t time;
+  unsigned long days;
+
+  // calculate number of seconds passed since last call to now()
+  while (now_ms - prevMillis >= 1000) {
+    // millis() and prevMillis are both unsigned ints thus the subtraction will always be the absolute value of the difference
+    sysTime++;
+    prevMillis += 1000;
+  }
+
+  time = (unsigned long)sysTime;
+  tm.Second = time % 60;
+  time /= 60; // now it is minutes
+  tm.Minute = time % 60;
+  time /= 60; // now it is hours
+  tm.Hour = time % 24;
+  time /= 24; // now it is days
+
+  return tm;
+}*/

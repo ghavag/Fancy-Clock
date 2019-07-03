@@ -49,6 +49,16 @@ public:
   void setDigit(uint8_t index, uint8_t digit, uint8_t red, uint8_t green, uint8_t blue);
 
   /*
+   * Sets a number (a single digit) on the hardware digit display.
+   *
+   * Params:
+   *   index: The index of the hardware digit display starting from 0 (the most right one).
+   *   digit: The digit (0 to 9) to be displayed.
+   *   color: The intensity of each color as cRGB struct.
+   */
+  void setDigit(uint8_t index, uint8_t digit, cRGB color);
+
+  /*
   * Sets the RGB value of an LED
   *
   * Params:

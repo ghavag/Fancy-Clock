@@ -5,7 +5,7 @@
  *
  */
 
-#define MAXIMUM_BRIGHTNESS 4 // Number between 0 and 256
+#define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
 #define BTN_NEXT_SUB_EFFECT 1
 
@@ -46,16 +46,18 @@ int main(void) {
   /* Setup button inputs */
   PORTD |= _BV(PD4); // Enable internal pull up resistors
 
+  /* Setup potentiometer for brightness control */
+  ADMUX = _BV(REFS0); // Use Vcc as reference voltage source
+  ADMUX |= _BV(MUX1) | _BV(MUX0); // Select port PC3/ADC3 (A3 at Arduino Nano)
+  ADCSRA |= _BV(ADEN); // Enable analog to digital converter (ADC)
+
   /* Init the DFC77 decoder library */
   PORTD |= _BV(PD2); // Enable internal pull up resistor
   EICRA |= _BV(ISC00); // Interrupt on any logical change of D2
   EIMSK |= _BV(INT0); // Enable interrupt INT0
   sei();
 
-  DispDrv.max_brightness = MAXIMUM_BRIGHTNESS;
-
-  // Call the main loop
-  loop();
+  loop(); // Call the main loop (function that never returns)
 
   return 0;
 }
@@ -67,11 +69,20 @@ void loop() {
   tmElements_t tm;
   uint8_t btn_pressed = 0;
 
+  /* Dummy read of brightness potentiometer */
+  ADCSRA |= _BV(ADSC);
+  while(ADCSRA & _BV(ADSC));
+  (void) ADCW;
+
+  ADCSRA |= _BV(ADSC); // First "real" read of brightness potentiometer
+
   while(1) {
-    //get_time(&h, &m, &s);
-    //tm = getTimeOnly();
-    //printf("%02u:%02u:%02u\n", tm.Hour, tm.Minute, tm.Second);
     var_millis = millis();
+
+    /* Read the brightness potentiometer and apply the brightness */
+    while(ADCSRA & _BV(ADSC));
+    DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
+    ADCSRA |= _BV(ADSC); // Start the next read (for the next cycle)
 
     BE.update(var_millis, false);
 
@@ -89,7 +100,7 @@ void loop() {
     * It is important to run this delay loop before syncing the time with DCF77,
     * otherwise we could get stuck in the delay loop for a very long time.
     */
-    while (millis() - var_millis > 34);
+    while (millis() - var_millis <= 34);
 
     // Syncing time with DCF77 if a new time is available
     if (DCFtime = DCF.getTime()) {

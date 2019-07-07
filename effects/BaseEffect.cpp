@@ -65,3 +65,13 @@ void BaseEffect::displayCurrentTime(cRGB color) {
   pDisplayDriver->setDigit(2, tm.Hour % 10, color);
   pDisplayDriver->setDigit(3, tm.Hour / 10, color);
 }
+
+cRGB BaseEffect::generateRandomColor() {
+  cRGB color;
+
+  color.r = rand() % 256;
+  color.g = rand() % 256;
+  color.b = rand() % 256;
+
+  return color;
+}

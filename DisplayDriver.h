@@ -17,6 +17,7 @@
 
 #define LEDCount 294
 #define LEDCountPerDigit 48
+#define DigitCount 4
 
 class DisplayDriver : private WS2812 {
 public:

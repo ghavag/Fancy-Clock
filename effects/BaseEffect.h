@@ -52,14 +52,14 @@ public:
   *                  information to determine whether to update the display on
   *                  change of the maximum brightness.
   */
-  void update(unsigned long tnow, bool force_update);
+  virtual void update(unsigned long tnow, bool force_update);
 
   /*
   * Turn colon blinking on or off.
   *
   * blink: True lets the colon blink, false turn colon on constantly.
   */
-  void setBlinkingColon(bool blink);
+  virtual void setBlinkingColon(bool blink);
 
   /*
   * Effects may implement some sub-effects. If this method is called, the
@@ -86,14 +86,22 @@ protected:
   *
   * tnow: The current time in milliseconds.
   */
-  void update_blinking_colon(unsigned long tnow);
+  virtual void update_blinking_colon(unsigned long tnow);
 
   /*
   * Set the display to the current time.
   *
   * color: Color in which the time should be displayed.
   */
-  void displayCurrentTime(cRGB color);
+  virtual void displayCurrentTime(cRGB color);
+
+  /*
+  * Generate a random color value. The user must initialize the random number
+  * generator (by e. g. calling srand()).
+  *
+  * return: A random color as struct cRGB.
+  */
+  virtual cRGB generateRandomColor();
 };
 
 #endif //BASE_EFFECT_H_

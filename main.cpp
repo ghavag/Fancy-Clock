@@ -7,7 +7,8 @@
 
 #define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
-#define BTN_NEXT_SUB_EFFECT 1
+#define BTN_NEXT_EFFECT 1
+#define BTN_NEXT_SUB_EFFECT 2
 
 /*
 * If the last time synchronization with DCF77 is longer ago as
@@ -27,15 +28,18 @@
 #include "lib/uart/uart.h"
 #include "lib/dcf77/DCF77.h"
 #include "DisplayDriver.h"
-//#include "effects/BaseEffect.h"
+
+/* Include header files of all effects */
 #include "effects/SimpleColor.h"
+#include "effects/RandomColoredDigit.h"
+
+/* Number of effets (always as much as effect header files are included) */
+#define EFFECT_COUNT 2
 
 DCF77 DCF = DCF77(0, 0);
 
-// Use Port PC5 as output so send data to the display
+/* Use port PC5 as output to send data to the display */
 DisplayDriver DispDrv = DisplayDriver(&PORTC, &DDRC, PC5);
-//BaseEffect BE = BaseEffect(&DispDrv);
-SimpleColor BE =  SimpleColor(&DispDrv);
 
 int main(void) {
   unsigned char s, m, h;
@@ -52,8 +56,9 @@ int main(void) {
   stdout = &uart_output;
   stdin  = &uart_input;
 
-  /* Setup button inputs */
-  PORTD |= _BV(PD4); // Enable internal pull up resistors
+  /* Setup button inputs (enable internal pull up resistors) */
+  PORTD |= _BV(PD4);
+  PORTD |= _BV(PD5);
 
   /* Setup potentiometer for brightness control */
   ADMUX = _BV(REFS0); // Use Vcc as reference voltage source
@@ -78,6 +83,14 @@ void loop() {
   unsigned long last_dcf77_update = 0;
   tmElements_t tm;
   uint8_t btn_pressed = 0;
+  BaseEffect *effects[EFFECT_COUNT];
+  uint8_t selected_effect = 0;
+
+  /* Instantiate all effets */
+  SimpleColor eff_sc = SimpleColor(&DispDrv);
+  effects[0] = &eff_sc;
+  RandomColoredDigit eff_rcd = RandomColoredDigit(&DispDrv);
+  effects[1] = &eff_rcd;
 
   /* Dummy read of brightness potentiometer */
   ADCSRA |= _BV(ADSC);
@@ -94,12 +107,20 @@ void loop() {
     DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
-    BE.update(var_millis, false);
+    effects[selected_effect]->update(var_millis, false);
 
-    /* Button handling */
+    /** Button handling **/
+    /* Next effect */
+    if (!(PIND & _BV(PD5)) && !(btn_pressed & BTN_NEXT_EFFECT)) {
+      btn_pressed |= BTN_NEXT_EFFECT;
+      selected_effect = (selected_effect + 1) % EFFECT_COUNT;
+    } else if (PIND & _BV(PD5)) {
+      btn_pressed &= (0xFF - BTN_NEXT_EFFECT);
+    }
+    /* Next sub-effect */
     if (!(PIND & _BV(PD4)) && !(btn_pressed & BTN_NEXT_SUB_EFFECT)) {
       btn_pressed |= BTN_NEXT_SUB_EFFECT;
-      BE.nextSubEffect();
+      effects[selected_effect]->nextSubEffect();
     } else if (PIND & _BV(PD4)) {
       btn_pressed &= (0xFF - BTN_NEXT_SUB_EFFECT);
     }
@@ -108,12 +129,12 @@ void loop() {
     if (DCFtime = DCF.getTime()) {
       printf("There is a new time!\n");
       setTime(DCFtime);
-      BE.setBlinkingColon(false);
+      effects[selected_effect]->setBlinkingColon(false);
       last_dcf77_update = var_millis;
     }
     // Let the colon blink again if the last sync was too long ago
     else if (var_millis - last_dcf77_update > DCF77_MAX_SYNC_AGE) {
-      BE.setBlinkingColon(true);
+      effects[selected_effect]->setBlinkingColon(true);
     }
 
     /*

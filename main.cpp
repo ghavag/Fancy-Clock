@@ -9,6 +9,15 @@
 
 #define BTN_NEXT_SUB_EFFECT 1
 
+/*
+* If the last time synchronization with DCF77 is longer ago as
+* DCF77_MAX_SYNC_AGE milliseconds the colon start to blink again to signal that
+* the time displayed could be wrong. Assuming the Arduino Nano board has a
+* 16 MHz clock with a accuracy of 3000 ppm, we set this value to 1,250,000 to
+* tolerate a time drift of less when plus/minus one minute.
+*/
+#define DCF77_MAX_SYNC_AGE 1250000UL
+
 #include <stdio.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -66,6 +75,7 @@ void loop() {
   unsigned char s, m, h;
   unsigned long DCFtime;
   unsigned long var_millis;
+  unsigned long last_dcf77_update = 0;
   tmElements_t tm;
   uint8_t btn_pressed = 0;
 
@@ -94,12 +104,16 @@ void loop() {
       btn_pressed &= (0xFF - BTN_NEXT_SUB_EFFECT);
     }
 
-    // Syncing time with DCF77 if a new time is available
+    // Syncing clock with DCF77 if a new time is available
     if (DCFtime = DCF.getTime()) {
       printf("There is a new time!\n");
       setTime(DCFtime);
       BE.setBlinkingColon(false);
-      //printf("The new time is: %02u:%02u:%02u\n", tm.Hour, tm.Minute, tm.Second);
+      last_dcf77_update = var_millis;
+    }
+    // Let the colon blink again if the last sync was too long ago
+    else if (var_millis - last_dcf77_update > DCF77_MAX_SYNC_AGE) {
+      BE.setBlinkingColon(true);
     }
 
     /*

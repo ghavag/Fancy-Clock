@@ -82,7 +82,7 @@ void loop() {
     /* Read the brightness potentiometer and apply the brightness */
     while(ADCSRA & _BV(ADSC));
     DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
-    ADCSRA |= _BV(ADSC); // Start the next read (for the next cycle)
+    ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
     BE.update(var_millis, false);
 
@@ -94,14 +94,6 @@ void loop() {
       btn_pressed &= (0xFF - BTN_NEXT_SUB_EFFECT);
     }
 
-    /*
-    * Waiting for 34 milliseconds results in calling the update() method of the
-    * effects ~29.4 times per second.
-    * It is important to run this delay loop before syncing the time with DCF77,
-    * otherwise we could get stuck in the delay loop for a very long time.
-    */
-    while (millis() - var_millis <= 34);
-
     // Syncing time with DCF77 if a new time is available
     if (DCFtime = DCF.getTime()) {
       printf("There is a new time!\n");
@@ -109,6 +101,12 @@ void loop() {
       BE.setBlinkingColon(false);
       //printf("The new time is: %02u:%02u:%02u\n", tm.Hour, tm.Minute, tm.Second);
     }
+
+    /*
+    * Waiting for 34 milliseconds results in calling the update() method of the
+    * effects ~29.4 times per second.
+    */
+    while (millis() - var_millis <= 34);
   }
 }
 

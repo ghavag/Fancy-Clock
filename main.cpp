@@ -32,9 +32,10 @@
 /* Include header files of all effects */
 #include "effects/SimpleColor.h"
 #include "effects/RandomColoredDigit.h"
+#include "effects/FadingColors.h"
 
 /* Number of effets (always as much as effect header files are included) */
-#define EFFECT_COUNT 2
+#define EFFECT_COUNT 3
 
 DCF77 DCF = DCF77(0, 0);
 
@@ -91,6 +92,8 @@ void loop() {
   effects[0] = &eff_sc;
   RandomColoredDigit eff_rcd = RandomColoredDigit(&DispDrv);
   effects[1] = &eff_rcd;
+  FadingColors eff_fc = FadingColors(&DispDrv);
+  effects[2] = &eff_fc;
 
   /* Dummy read of brightness potentiometer */
   ADCSRA |= _BV(ADSC);

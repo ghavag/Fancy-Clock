@@ -5,7 +5,7 @@ CC=avr-gcc
 CFLAGS=-mmcu=$(DEVICE) -DF_CPU=$(F_CPU) -Os
 PFLAGS=-p $(DEVICE) -c arduino -P /dev/ttyUSB0 -b 57600
 PROJNAME=uhr2
-SRC = main.cpp time.cpp lib/dcf77/DCF77.cpp lib/uart/uart.c DisplayDriver.cpp lib/light_ws2812/WS2812.cpp lib/light_ws2812/light_ws2812.cpp effects/BaseEffect.cpp effects/SimpleColor.cpp effects/RandomColoredDigit.cpp
+SRC = main.cpp time.cpp lib/dcf77/DCF77.cpp lib/uart/uart.c DisplayDriver.cpp lib/light_ws2812/WS2812.cpp lib/light_ws2812/light_ws2812.cpp effects/BaseEffect.cpp effects/SimpleColor.cpp effects/RandomColoredDigit.cpp effects/FadingColors.cpp
 OFILE=$(PROJNAME).elf
 
 # Define all object files.

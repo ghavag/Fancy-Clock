@@ -37,7 +37,7 @@ public:
   */
   FadingColors(DisplayDriver *DD);
 
-  void update(unsigned long tnow, bool time_is_synched);
+  void update(unsigned long tnow, bool time_is_synched, uint8_t dm);
 
   int nextSubEffect();
 

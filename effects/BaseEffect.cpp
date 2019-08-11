@@ -33,15 +33,15 @@ BaseEffect::BaseEffect(DisplayDriver *DD) {
   blinking_colon_color.b = 0;
 }
 
-void BaseEffect::update(unsigned long tnow, bool time_is_synched) {
+void BaseEffect::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
   blinking_colon = !time_is_synched;
-  if (blinking_colon) update_blinking_colon(tnow);
+  if (blinking_colon) update_blinking_colon(tnow, dm);
 }
 
-void BaseEffect::update_blinking_colon(unsigned long tnow) {
+void BaseEffect::update_blinking_colon(unsigned long tnow, uint8_t dm) {
   static unsigned char state = 0; // 0 = colon off; 1 = colon on
   static unsigned long tlast = 0;
-  cRGB color;
+  cRGB color_upper, color_lower;
 
   if ((tnow - tlast) > blinking_colon_hpd) {
     tlast = tnow;
@@ -49,34 +49,61 @@ void BaseEffect::update_blinking_colon(unsigned long tnow) {
   }
 
   if (state || !blinking_colon)
-    color = blinking_colon_color;
+    color_lower = blinking_colon_color;
   else {
-    color.r = 0;
-    color.g = 0;
-    color.b = 0;
+    color_lower.r = 0;
+    color_lower.g = 0;
+    color_lower.b = 0;
   }
 
-  pDisplayDriver->setLED(0, color);
-  pDisplayDriver->setLED(1, color);
+  if (dm == DISPLAY_MODE_DM) {
+    color_upper.r = 0;
+    color_upper.g = 0;
+    color_upper.b = 0;
+  } else {
+    color_upper = color_lower;
+  }
+
+  pDisplayDriver->setLED(0, color_lower);
+  pDisplayDriver->setLED(1, color_upper);
 }
 
-void BaseEffect::setBlinkingColon(bool blink) {
-  /*if (!blink) {
-    pDisplayDriver->setLED(0, blinking_colon_color);
-    pDisplayDriver->setLED(1, blinking_colon_color);
-  }*/
-
-  blinking_colon = blink;
-}
-
-void BaseEffect::displayCurrentTime(cRGB color) {
+void BaseEffect::getDigitValues(uint8_t *digit_values, uint8_t dm) {
+  //static uint8_t digit_values[4];
   tmElements_t tm;
 
   tm = getTimeOnly();
-  pDisplayDriver->setDigit(0, tm.Minute % 10, color);
-  pDisplayDriver->setDigit(1, tm.Minute / 10, color);
-  pDisplayDriver->setDigit(2, tm.Hour % 10, color);
-  pDisplayDriver->setDigit(3, tm.Hour / 10, color);
+
+  switch (dm) {
+    case DISPLAY_MODE_MS:
+      digit_values[0] = tm.Second % 10;
+      digit_values[1] = tm.Second / 10;
+      digit_values[2] = tm.Minute % 10;
+      digit_values[3] = tm.Minute / 10;
+      break;
+    case DISPLAY_MODE_DM:
+      digit_values[0] = tm.Month % 10;
+      digit_values[1] = tm.Month / 10;
+      digit_values[2] = tm.Day % 10;
+      digit_values[3] = tm.Day / 10;
+      break;
+    default /* DISPLAY_MODE_HM */:
+      digit_values[0] = tm.Minute % 10;
+      digit_values[1] = tm.Minute / 10;
+      digit_values[2] = tm.Hour % 10;
+      digit_values[3] = tm.Hour / 10;
+  }
+}
+
+void BaseEffect::displayCurrentTime(cRGB color, uint8_t dm) {
+  uint8_t dv[4];
+
+  getDigitValues(dv, dm);
+
+  pDisplayDriver->setDigit(0, dv[0], color);
+  pDisplayDriver->setDigit(1, dv[1], color);
+  pDisplayDriver->setDigit(2, dv[2], color);
+  pDisplayDriver->setDigit(3, dv[3], color);
 }
 
 cRGB BaseEffect::generateRandomColor() {

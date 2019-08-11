@@ -105,7 +105,7 @@ void setTime(unsigned long t) {
   prevMillis = millis();  // restart counting from now (thanks to Korman for this fix)
 }
 
-/*tmElements_t timeFromStamp(unsigned long timeInput) {
+tmElements_t getTimeOnly() {
   // break the given time_t into time components
   // this is a more compact version of the C library localtime function
   // note that year is offset from 1970 !!!
@@ -115,7 +115,7 @@ void setTime(unsigned long t) {
   uint32_t time;
   unsigned long days;
 
-  time = (uint32_t)timeInput;
+  time = (uint32_t)now();
   tm.Second = time % 60;
   time /= 60; // now it is minutes
   tm.Minute = time % 60;
@@ -158,41 +158,13 @@ void setTime(unsigned long t) {
   tm.Day = time + 1;     // day of month
 
   return tm;
-}*/
-
-tmElements_t getTimeOnly() {
-  tmElements_t tm;
-  uint8_t year;
-  uint8_t month, monthLength;
-  uint32_t time;
-  unsigned long days;
-
-  time = (uint32_t)now();
-  tm.Second = time % 60;
-  time /= 60; // now it is minutes
-  tm.Minute = time % 60;
-  time /= 60; // now it is hours
-  tm.Hour = time % 24;
-  time /= 24; // now it is days
-
-  return tm;
 }
 
-/*tmElements_t getTimeOnly(unsigned long now_ms) {
+/*tmElements_t getTimeOnly() {
   tmElements_t tm;
-  uint8_t year;
-  uint8_t month, monthLength;
   uint32_t time;
-  unsigned long days;
 
-  // calculate number of seconds passed since last call to now()
-  while (now_ms - prevMillis >= 1000) {
-    // millis() and prevMillis are both unsigned ints thus the subtraction will always be the absolute value of the difference
-    sysTime++;
-    prevMillis += 1000;
-  }
-
-  time = (unsigned long)sysTime;
+  time = (uint32_t)now();
   tm.Second = time % 60;
   time /= 60; // now it is minutes
   tm.Minute = time % 60;

@@ -28,11 +28,11 @@ SimpleColor::SimpleColor(DisplayDriver *DD) : BaseEffect(DD) {
   applySubEffect(selected_sub_effect);
 }
 
-void SimpleColor::update(unsigned long tnow, bool time_is_synched) {
+void SimpleColor::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
   blinking_colon = !time_is_synched;
-  update_blinking_colon(tnow);
+  update_blinking_colon(tnow, dm);
 
-  displayCurrentTime(color);
+  displayCurrentTime(color, dm);
 
   pDisplayDriver->sync();
 }

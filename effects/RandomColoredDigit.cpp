@@ -26,18 +26,14 @@ RandomColoredDigit::RandomColoredDigit(DisplayDriver *DD) : BaseEffect(DD) {
   nextSubEffect();
 }
 
-void RandomColoredDigit::update(unsigned long tnow, bool time_is_synched) {
+void RandomColoredDigit::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
   blinking_colon = !time_is_synched;
-  update_blinking_colon(tnow);
+  update_blinking_colon(tnow, dm);
   tmElements_t tm;
   uint8_t digit[4];
   static uint8_t old_digit[4];
 
-  tm = getTimeOnly();
-  digit[0] = tm.Minute % 10;
-  digit[1] = tm.Minute / 10;
-  digit[2] = tm.Hour % 10;
-  digit[3] = tm.Hour / 10;
+  getDigitValues(digit, dm);
 
   for (int i = 0; i < DigitCount; i++) {
     /* Generate new colors if digit has changed */

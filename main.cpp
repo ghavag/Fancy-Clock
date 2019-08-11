@@ -22,6 +22,7 @@
 
 #define BTN_NEXT_EFFECT 1
 #define BTN_NEXT_SUB_EFFECT 2
+#define BTN_DISPLAY_MODE 4
 
 /*
 * If the last time synchronization with DCF77 is longer ago as
@@ -70,9 +71,13 @@ int main(void) {
   stdout = &uart_output;
   stdin  = &uart_input;
 
-  /* Setup button inputs (enable internal pull up resistors) */
+  /*
+  * Setup button inputs
+  * Pins are inputs by default, enable only internal pull up resistors
+  */
   PORTD |= _BV(PD4);
   PORTD |= _BV(PD5);
+  PORTD |= _BV(PD6);
 
   /* Setup potentiometer for brightness control */
   ADMUX = _BV(REFS0); // Use Vcc as reference voltage source
@@ -100,6 +105,7 @@ void loop() {
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
   bool dcf_synced = false;
+  uint8_t display_mode = 0;
 
   /* Instantiate all effets */
   SimpleColor eff_sc = SimpleColor(&DispDrv);
@@ -124,7 +130,7 @@ void loop() {
     DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
-    effects[selected_effect]->update(var_millis, dcf_synced);
+    effects[selected_effect]->update(var_millis, dcf_synced, display_mode);
 
     /** Button handling **/
     /* Next effect */
@@ -140,6 +146,13 @@ void loop() {
       effects[selected_effect]->nextSubEffect();
     } else if (PIND & _BV(PD4)) {
       btn_pressed &= (0xFF - BTN_NEXT_SUB_EFFECT);
+    }
+    /* Display mode */
+    if (!(PIND & _BV(PD6)) && !(btn_pressed & BTN_DISPLAY_MODE)) {
+      btn_pressed |= BTN_DISPLAY_MODE;
+      display_mode = (display_mode + 1) % DISPLAY_MODES;
+    } else if (PIND & _BV(PD4)) {
+      btn_pressed &= (0xFF - BTN_DISPLAY_MODE);
     }
 
     // Syncing clock with DCF77 if a new time is available

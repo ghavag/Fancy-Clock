@@ -24,6 +24,11 @@
 #ifndef BASE_EFFECT_H_
 #define BASE_EFFECT_H_
 
+#define DISPLAY_MODE_HM 0 // Display Hours : Minutes
+#define DISPLAY_MODE_MS 1 // Display Minutes : Seconds
+#define DISPLAY_MODE_DM 2 // Display Day : Month
+#define DISPLAY_MODES 3 // Numer of display modes
+
 #include "../time.h"
 #include "../DisplayDriver.h"
 
@@ -63,15 +68,9 @@ public:
   * tnow: The current time in milliseconds.
   * time_is_synched: True if time is in sync with DCF77. Most effects let the
   *                  colon blink to signal that the time is not synced.
+  * dm: Display mode (show time as hh:mm or mm:ss and so on)
   */
-  virtual void update(unsigned long tnow, bool time_is_synched);
-
-  /*
-  * Turn colon blinking on or off.
-  *
-  * blink: True lets the colon blink, false turn colon on constantly.
-  */
-  virtual void setBlinkingColon(bool blink);
+  virtual void update(unsigned long tnow, bool time_is_synched, uint8_t dm);
 
   /*
   * Effects may implement some sub-effects. If this method is called, the
@@ -97,15 +96,29 @@ protected:
   * true. This method lets the colon blink.
   *
   * tnow: The current time in milliseconds.
+  * dm: Display mode. When showing "Day : Month" to colon turn into an dot.
   */
-  virtual void update_blinking_colon(unsigned long tnow);
+  virtual void update_blinking_colon(unsigned long tnow, uint8_t dm);
+
+  /*
+  * Gets the time and splits it up into four pieces (one for each digit)
+  * according to the choosen display mode. The time pieces are stored into an
+  * four elements array (one element per hardware digit).
+  *
+  * digit_values: A pointer of an four elements array of type uint8_t which gets
+  *               filled with the time pieces.
+  * dm: Display mode according to which the array gets filled (e. g.  hh:mm,
+  *     mm:ss and so on).
+  */
+  void getDigitValues(uint8_t *digit_values, uint8_t dm);
 
   /*
   * Set the display to the current time.
   *
   * color: Color in which the time should be displayed.
+  * dm: Display mode (show hh:mm, mm:ss and so on).
   */
-  virtual void displayCurrentTime(cRGB color);
+  virtual void displayCurrentTime(cRGB color, uint8_t dm);
 
   /*
   * Generate a random color value. The user must initialize the random number

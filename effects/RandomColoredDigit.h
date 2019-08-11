@@ -37,7 +37,7 @@ public:
   */
   RandomColoredDigit(DisplayDriver *DD);
 
-  void update(unsigned long tnow, bool time_is_synched);
+  void update(unsigned long tnow, bool time_is_synched, uint8_t dm);
 
   /*
   * This effect doesn't implement sub-effects but instead generates completely

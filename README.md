@@ -9,3 +9,16 @@ The clock utilizes 196 WS2812 compatible LEDs (PL9823 F5) which are basically IC
 [1]: The project doesn't utilize the Arduino library (only adapts small pieces of it's code) but uses the Arduino boot loader to comfortable program the controller.
 
 [2]: This means the clock get's synchronized by [DFC77](https://en.wikipedia.org/wiki/DCF77).
+
+
+## State of the project
+
+This project is a work in progress. I am working on this project in my spare time, so the project evolves only slowly.
+
+**TODOs**
+* Add more documentation like a schematic
+* Implement auto effect switching
+* Implement one or two more effects
+* Build a housing for the clock
+* Enhance this readme
+* ...

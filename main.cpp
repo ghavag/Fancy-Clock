@@ -1,7 +1,20 @@
 /*
- * Project Uhr2 - A fancy clock
+ * This file is the main file of the project Fancy Clock
  *
- * Copyright 2019 Alexander Graeb
+ * Copyright (c) 2019 Alexander Graeb
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * (see LICENSE_LGPLv3) along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -86,6 +99,7 @@ void loop() {
   uint8_t btn_pressed = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
+  bool dcf_synced = false;
 
   /* Instantiate all effets */
   SimpleColor eff_sc = SimpleColor(&DispDrv);
@@ -110,7 +124,7 @@ void loop() {
     DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
-    effects[selected_effect]->update(var_millis, false);
+    effects[selected_effect]->update(var_millis, dcf_synced);
 
     /** Button handling **/
     /* Next effect */
@@ -132,12 +146,14 @@ void loop() {
     if (DCFtime = DCF.getTime()) {
       printf("There is a new time!\n");
       setTime(DCFtime);
-      effects[selected_effect]->setBlinkingColon(false);
+      //effects[selected_effect]->setBlinkingColon(false);
+      dcf_synced = true;
       last_dcf77_update = var_millis;
     }
     // Let the colon blink again if the last sync was too long ago
     else if (var_millis - last_dcf77_update > DCF77_MAX_SYNC_AGE) {
-      effects[selected_effect]->setBlinkingColon(true);
+      //effects[selected_effect]->setBlinkingColon(true);
+      dcf_synced = false;
     }
 
     /*

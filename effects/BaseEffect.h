@@ -1,12 +1,25 @@
 /*
-* A AVR microcontroller based fancy clock
-* Copyright (c) 2019 Alexander Graeb
-*
-* TODO: Which license to use?
-*
-* This time is displayed using various effets. Each effect is implemented in its
-* own class. Every such class needs to inherit from this BaseEffect class.
-*/
+ * This file is part of the project Fancy Clock
+ *
+ * The time is displayed using various effets. Each effect is implemented in its
+ * own class. Every such class needs to inherit from this (BaseEffect) class.
+ *
+ * Copyright (c) 2019 Alexander Graeb
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * (see LICENSE_LGPLv3) along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef BASE_EFFECT_H_
 #define BASE_EFFECT_H_
@@ -48,11 +61,10 @@ public:
   * will update the display according to the effects behaviour.
   *
   * tnow: The current time in milliseconds.
-  * max_brightness: The current maximum brightness. Some effentcs may use that
-  *                  information to determine whether to update the display on
-  *                  change of the maximum brightness.
+  * time_is_synched: True if time is in sync with DCF77. Most effects let the
+  *                  colon blink to signal that the time is not synced.
   */
-  virtual void update(unsigned long tnow, bool force_update);
+  virtual void update(unsigned long tnow, bool time_is_synched);
 
   /*
   * Turn colon blinking on or off.

@@ -1,12 +1,25 @@
 /*
-* A AVR microcontroller based fancy clock
-* Copyright (c) 2019 Alexander Graeb
-*
-* TODO: Which license to use?
-*
-* This class implements a simple effect display the time in one of various
-* predefined colors. For more details see comments in BaseEffect.h.
-*/
+ * This file is part of the project Fancy Clock
+ *
+ * This effect does nothing else than displaying the time in different colors,
+ * each implemented as a sub-effect.
+ *
+ * Copyright (c) 2019 Alexander Graeb
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * (see LICENSE_LGPLv3) along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef SIMPLE_COLOR_H_
 #define SIMPLE_COLOR_H_
@@ -24,7 +37,7 @@ public:
   */
   SimpleColor(DisplayDriver *DD);
 
-  void update(unsigned long tnow, bool force_update);
+  void update(unsigned long tnow, bool time_is_synched);
 
   int nextSubEffect();
 

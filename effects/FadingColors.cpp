@@ -1,11 +1,23 @@
 /*
-* A AVR microcontroller based fancy clock
-* Copyright (c) 2019 Alexander Graeb
-*
-* TODO: Which license to use?
-*
-* For more information see header file.
-*/
+ * This file is part of the project Fancy Clock
+ * For more information see the corresponding header file.
+ *
+ * Copyright (c) 2019 Alexander Graeb
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * (see LICENSE_LGPLv3) along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #include "FadingColors.h"
 
@@ -21,7 +33,9 @@ FadingColors::FadingColors(DisplayDriver *DD) : BaseEffect(DD) {
   color.g = color.b = 0;
 }
 
-void FadingColors::update(unsigned long tnow, bool force_update) {
+void FadingColors::update(unsigned long tnow, bool time_is_synched) {
+  blinking_colon = !time_is_synched;
+
   switch (stage) {
     case 0: // Red => green
       if (color.r >= speed) color.r -= speed;

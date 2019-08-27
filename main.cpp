@@ -75,9 +75,9 @@ int main(void) {
   * Setup button inputs
   * Pins are inputs by default, enable only internal pull up resistors
   */
-  PORTD |= _BV(PD4);
-  PORTD |= _BV(PD5);
-  PORTD |= _BV(PD6);
+  PORTB |= _BV(PB2);
+  PORTB |= _BV(PD1);
+  PORTD |= _BV(PD7);
 
   /* Setup potentiometer for brightness control */
   ADMUX = _BV(REFS0); // Use Vcc as reference voltage source
@@ -134,24 +134,24 @@ void loop() {
 
     /** Button handling **/
     /* Next effect */
-    if (!(PIND & _BV(PD5)) && !(btn_pressed & BTN_NEXT_EFFECT)) {
+    if (!(PINB & _BV(PB2)) && !(btn_pressed & BTN_NEXT_EFFECT)) {
       btn_pressed |= BTN_NEXT_EFFECT;
       selected_effect = (selected_effect + 1) % EFFECT_COUNT;
-    } else if (PIND & _BV(PD5)) {
+    } else if (PINB & _BV(PB2)) {
       btn_pressed &= (0xFF - BTN_NEXT_EFFECT);
     }
     /* Next sub-effect */
-    if (!(PIND & _BV(PD4)) && !(btn_pressed & BTN_NEXT_SUB_EFFECT)) {
+    if (!(PINB & _BV(PB1)) && !(btn_pressed & BTN_NEXT_SUB_EFFECT)) {
       btn_pressed |= BTN_NEXT_SUB_EFFECT;
       effects[selected_effect]->nextSubEffect();
-    } else if (PIND & _BV(PD4)) {
+    } else if (PINB & _BV(PB1)) {
       btn_pressed &= (0xFF - BTN_NEXT_SUB_EFFECT);
     }
     /* Display mode */
-    if (!(PIND & _BV(PD6)) && !(btn_pressed & BTN_DISPLAY_MODE)) {
+    if (!(PIND & _BV(PD7)) && !(btn_pressed & BTN_DISPLAY_MODE)) {
       btn_pressed |= BTN_DISPLAY_MODE;
       display_mode = (display_mode + 1) % DISPLAY_MODES;
-    } else if (PIND & _BV(PD4)) {
+    } else if (PIND & _BV(PD7)) {
       btn_pressed &= (0xFF - BTN_DISPLAY_MODE);
     }
 

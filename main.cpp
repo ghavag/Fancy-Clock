@@ -54,7 +54,7 @@
 DCF77 DCF = DCF77(0, 0);
 
 /* Use port PC5 as output to send data to the display */
-DisplayDriver DispDrv = DisplayDriver(&PORTC, &DDRC, PC5);
+DisplayDriver DispDrv = DisplayDriver(&PORTD, &DDRD, PD4);
 
 int main(void) {
   unsigned char s, m, h;

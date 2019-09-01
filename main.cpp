@@ -106,6 +106,8 @@ void loop() {
   uint8_t selected_effect = 0;
   bool dcf_synced = false;
   uint8_t display_mode = 0;
+  uint8_t abrightness[3];
+  uint8_t tmp, nbm = 0; // Number brightness measurements
 
   /* Instantiate all effets */
   SimpleColor eff_sc = SimpleColor(&DispDrv);
@@ -127,7 +129,23 @@ void loop() {
 
     /* Read the brightness potentiometer and apply the brightness */
     while(ADCSRA & _BV(ADSC));
-    DispDrv.max_brightness = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
+    abrightness[nbm++] = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
+
+    if (nbm >= sizeof(abrightness)/sizeof(uint8_t)) {
+      for (uint8_t i = 0; i < (sizeof(abrightness)/sizeof(uint8_t) - 1); i++) {
+        for (nbm = i + 1; nbm < sizeof(abrightness)/sizeof(uint8_t); nbm++) {
+          if (abrightness[i] > abrightness[nbm]) {
+            tmp = abrightness[i];
+            abrightness[i] = abrightness[nbm];
+            abrightness[nbm] = tmp;
+          }
+        }
+      }
+
+      DispDrv.max_brightness = abrightness[sizeof(abrightness)/sizeof(uint8_t)/2 + 1];
+      nbm = 0;
+    }
+
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
     effects[selected_effect]->update(var_millis, dcf_synced, display_mode);

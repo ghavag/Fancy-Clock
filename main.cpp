@@ -31,7 +31,7 @@
 * 16 MHz clock with a accuracy of 3000 ppm, we set this value to 1,250,000 to
 * tolerate a time drift of less when plus/minus one minute.
 */
-#define DCF77_MAX_SYNC_AGE 1250000UL
+#define DCF77_MAX_SYNC_AGE 4294967295UL // 49.7103 days (biggest possible value)
 
 #include <stdio.h>
 #include <util/delay.h>
@@ -41,6 +41,7 @@
 #include "time.h"
 #include "lib/uart/uart.h"
 #include "lib/dcf77/DCF77.h"
+#include "lib/ds1302/ds1302.h"
 #include "DisplayDriver.h"
 
 /* Include header files of all effects */
@@ -52,6 +53,13 @@
 #define EFFECT_COUNT 3
 
 DCF77 DCF = DCF77(0, 0);
+
+/* Create and init library for DS1302 timekeeper support. */
+DS1302 ds1302 = DS1302(
+  &PORTC, &DDRC, PC2, // SCLK at Arduino port A2 (ATmega port C pin 2)
+  &PORTC, &DDRC, &PINC, PC1, // IO at Arduino port A1 (ATmega port C pin 1)
+  &PORTC, &DDRC, PC0 // CE at Arduino port A0 (ATmega port C pin 0)
+);
 
 /* Use port PC5 as output to send data to the display */
 DisplayDriver DispDrv = DisplayDriver(&PORTD, &DDRD, PD4);
@@ -90,6 +98,23 @@ int main(void) {
   EIMSK |= _BV(INT0); // Enable interrupt INT0
   sei();
 
+  /* Use timekeeper to initial set the system time. */
+  tmElements_t tm;
+  ds1302_struct rtc;
+
+  ds1302.clock_burst_read((uint8_t *) &rtc);
+
+  tm.Second = bcd2bin(rtc.Seconds10, rtc.Seconds);
+  tm.Minute = bcd2bin(rtc.Minutes10, rtc.Minutes);
+  tm.Hour   = bcd2bin(rtc.h24.Hour10, rtc.h24.Hour);
+  tm.Day    = bcd2bin(rtc.Date10, rtc.Date);
+  tm.Month  = bcd2bin(rtc.Month10, rtc.Month);
+  tm.Year   = bcd2bin(rtc.Year10, rtc.Year) - 1970 + 2000;
+
+  setTime(makeTime(tm));
+
+  /**************************************************/
+
   loop(); // Call the main loop (function that never returns)
 
   return 0;
@@ -104,7 +129,7 @@ void loop() {
   uint8_t btn_pressed = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
-  bool dcf_synced = false;
+  bool dcf_synced = true;
   uint8_t display_mode = 0;
   uint8_t abrightness[3];
   uint8_t tmp, nbm = 0; // Number brightness measurements

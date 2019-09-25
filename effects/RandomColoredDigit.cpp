@@ -26,10 +26,8 @@ RandomColoredDigit::RandomColoredDigit(DisplayDriver *DD) : BaseEffect(DD) {
   nextSubEffect();
 }
 
-void RandomColoredDigit::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
-  blinking_colon = !time_is_synched;
-  update_blinking_colon(tnow, dm);
-  tmElements_t tm;
+void RandomColoredDigit::update(datetime dt, bool time_is_synched, uint8_t dm) {
+  base_update(dt, time_is_synched, dm);
   uint8_t digit[4];
   static uint8_t old_digit[4];
 

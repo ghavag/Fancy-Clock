@@ -18,5 +18,22 @@
  *
  */
 
+#include <stdio.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+#include "time.h"
+#include "lib/uart/uart.h"
+#include "lib/dcf77/DCF77.h"
+#include "lib/ds1302/ds1302.h"
+#include "DisplayDriver.h"
+
+/* Include header files of all effects */
+#include "effects/BaseEffect.h"
+#include "effects/SimpleColor.h"
+#include "effects/RandomColoredDigit.h"
+#include "effects/FadingColors.h"
+
 int main(void);
 void loop(void);
+inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc);

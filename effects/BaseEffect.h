@@ -42,6 +42,24 @@ extern "C" void __cxa_pure_virtual(void);
 class BaseEffect {
 public:
   /*
+  * Structure to pass date and time on update method (see below) call.
+  */
+  struct datetime {
+    // Time
+    uint8_t Seconds:4;      // low decimal digit 0-9
+    uint8_t Seconds10:3;    // high decimal digit 0-5
+    uint8_t Minutes:4;
+    uint8_t Minutes10:3;
+    uint8_t Hour:4;
+    uint8_t Hour10:2;
+    // Date (without the year)
+    uint8_t Date:4;           // Day of month, 1 = first day
+    uint8_t Date10:2;
+    uint8_t Month:4;          // Month, 1 = January
+    uint8_t Month10:1;
+  };
+
+  /*
   * If the colon is set to blink, blinking_colon_hpd is the half period
   * duration (hpd) in milliseconds. If set to 500 for example, the colon lights
   * up for 500 ms, then turns off for another 500 ms and so on.
@@ -65,12 +83,12 @@ public:
   * This method should be called regulary (i. e. every few milliseconds). It
   * will update the display according to the effects behaviour.
   *
-  * tnow: The current time in milliseconds.
+  * dt: Struct to pass date and time.
   * time_is_synched: True if time is in sync with DCF77. Most effects let the
   *                  colon blink to signal that the time is not synced.
   * dm: Display mode (show time as hh:mm or mm:ss and so on)
   */
-  virtual void update(unsigned long tnow, bool time_is_synched, uint8_t dm);
+  virtual void update(datetime dt, bool time_is_synched, uint8_t dm) = 0;
 
   /*
   * Effects may implement some sub-effects. If this method is called, the
@@ -89,16 +107,26 @@ protected:
   * A blinking colon indicates that the time is not synced to DCF77 (anymore).
   * Each effect should let the colon blink if this variable is set to true.
   */
-  bool blinking_colon;
+  static bool blinking_colon;
+
+  static datetime dt; // Struct var that holds date and time to be displayed.
+
+  static uint8_t dm; // Display mode. Indicates how date and time is displayed.
 
   /*
-  * This method is usually called from the update() method if blinking_colon is
-  * true. This method lets the colon blink.
+  * Does stuff which pretty much is done in every sub-effect when the public
+  * update method is called, i. e. this method is called from the update method
+  * in all sub-effects.
   *
-  * tnow: The current time in milliseconds.
-  * dm: Display mode. When showing "Day : Month" to colon turn into an dot.
+  * This method shared the same parameters with the update method (see above).
   */
-  virtual void update_blinking_colon(unsigned long tnow, uint8_t dm);
+  void base_update(datetime dt, bool time_is_synched, uint8_t dm);
+
+  /*
+  * Let the colon blink. This method is usually called from the update() method
+  * if blinking_colon is true.
+  */
+  virtual void update_blinking_colon();
 
   /*
   * Gets the time and splits it up into four pieces (one for each digit)

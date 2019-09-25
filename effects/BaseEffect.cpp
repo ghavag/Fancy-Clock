@@ -22,6 +22,11 @@
 #include "BaseEffect.h"
 #include <stdlib.h>
 
+/* Initialization of static variables */
+bool BaseEffect::blinking_colon;
+BaseEffect::datetime BaseEffect::dt;
+uint8_t BaseEffect::dm;
+
 void __cxa_pure_virtual(void) {}; // See comment in BaseEffect.h
 
 BaseEffect::BaseEffect(DisplayDriver *DD) {
@@ -33,15 +38,20 @@ BaseEffect::BaseEffect(DisplayDriver *DD) {
   blinking_colon_color.b = 0;
 }
 
-void BaseEffect::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
+void BaseEffect::base_update(datetime dt, bool time_is_synched, uint8_t dm) {
+  BaseEffect::dt = dt;
+  BaseEffect::dm = dm;
   blinking_colon = !time_is_synched;
-  if (blinking_colon) update_blinking_colon(tnow, dm);
+  update_blinking_colon();
 }
 
-void BaseEffect::update_blinking_colon(unsigned long tnow, uint8_t dm) {
+void BaseEffect::update_blinking_colon() {
   static unsigned char state = 0; // 0 = colon off; 1 = colon on
   static unsigned long tlast = 0;
+  unsigned long tnow;
   cRGB color_upper, color_lower;
+
+  tnow = millis();
 
   if ((tnow - tlast) > blinking_colon_hpd) {
     tlast = tnow;
@@ -69,29 +79,24 @@ void BaseEffect::update_blinking_colon(unsigned long tnow, uint8_t dm) {
 }
 
 void BaseEffect::getDigitValues(uint8_t *digit_values, uint8_t dm) {
-  //static uint8_t digit_values[4];
-  tmElements_t tm;
-
-  tm = getTimeOnly();
-
   switch (dm) {
     case DISPLAY_MODE_MS:
-      digit_values[0] = tm.Second % 10;
-      digit_values[1] = tm.Second / 10;
-      digit_values[2] = tm.Minute % 10;
-      digit_values[3] = tm.Minute / 10;
+      digit_values[0] = dt.Seconds;
+      digit_values[1] = dt.Seconds10;
+      digit_values[2] = dt.Minutes;
+      digit_values[3] = dt.Minutes10;
       break;
     case DISPLAY_MODE_DM:
-      digit_values[0] = tm.Month % 10;
-      digit_values[1] = tm.Month / 10;
-      digit_values[2] = tm.Day % 10;
-      digit_values[3] = tm.Day / 10;
+      digit_values[0] = dt.Month;
+      digit_values[1] = dt.Month10;
+      digit_values[2] = dt.Date;
+      digit_values[3] = dt.Date10;
       break;
     default /* DISPLAY_MODE_HM */:
-      digit_values[0] = tm.Minute % 10;
-      digit_values[1] = tm.Minute / 10;
-      digit_values[2] = tm.Hour % 10;
-      digit_values[3] = tm.Hour / 10;
+      digit_values[0] = dt.Minutes;
+      digit_values[1] = dt.Minutes10;
+      digit_values[2] = dt.Hour;
+      digit_values[3] = dt.Hour10;
   }
 }
 

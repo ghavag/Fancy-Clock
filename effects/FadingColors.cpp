@@ -33,9 +33,7 @@ FadingColors::FadingColors(DisplayDriver *DD) : BaseEffect(DD) {
   color.g = color.b = 0;
 }
 
-void FadingColors::update(unsigned long tnow, bool time_is_synched, uint8_t dm) {
-  blinking_colon = !time_is_synched;
-
+void FadingColors::update(datetime dt, bool time_is_synched, uint8_t dm) {
   switch (stage) {
     case 0: // Red => green
       if (color.r >= speed) color.r -= speed;
@@ -67,7 +65,7 @@ void FadingColors::update(unsigned long tnow, bool time_is_synched, uint8_t dm) 
   }
 
   blinking_colon_color = color;
-  update_blinking_colon(tnow, dm);
+  base_update(dt, time_is_synched, dm);
 
   displayCurrentTime(color, dm);
 

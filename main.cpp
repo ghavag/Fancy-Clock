@@ -18,6 +18,8 @@
  *
  */
 
+#include "main.h"
+
 #define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
 #define BTN_NEXT_EFFECT 1
@@ -32,22 +34,6 @@
 * tolerate a time drift of less when plus/minus one minute.
 */
 #define DCF77_MAX_SYNC_AGE 4294967295UL // 49.7103 days (biggest possible value)
-
-#include <stdio.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-
-#include "main.h"
-#include "time.h"
-#include "lib/uart/uart.h"
-#include "lib/dcf77/DCF77.h"
-#include "lib/ds1302/ds1302.h"
-#include "DisplayDriver.h"
-
-/* Include header files of all effects */
-#include "effects/SimpleColor.h"
-#include "effects/RandomColoredDigit.h"
-#include "effects/FadingColors.h"
 
 /* Number of effets (always as much as effect header files are included) */
 #define EFFECT_COUNT 3
@@ -65,10 +51,13 @@ DS1302 ds1302 = DS1302(
 DisplayDriver DispDrv = DisplayDriver(&PORTD, &DDRD, PD4);
 
 int main(void) {
-  unsigned char s, m, h;
-
-  // Debug code
-  DDRB |= _BV(DDB5); // Port PB5 als Ausgang verwenden.
+  /*
+  * Set port PB5 (Arduino port D13 = LED3) as output. This originally served
+  * debugging purposes to make DCF77 flank changes visible. But it is a nice
+  * feature to estimate whether the received DCF77 signal is good or bad so I
+  * keeped it.
+  */
+  DDRB |= _BV(DDB5);
   PORTB ^= _BV(PB5);
 
   /* Init timer */
@@ -98,23 +87,6 @@ int main(void) {
   EIMSK |= _BV(INT0); // Enable interrupt INT0
   sei();
 
-  /* Use timekeeper to initial set the system time. */
-  tmElements_t tm;
-  ds1302_struct rtc;
-
-  ds1302.clock_burst_read((uint8_t *) &rtc);
-
-  tm.Second = bcd2bin(rtc.Seconds10, rtc.Seconds);
-  tm.Minute = bcd2bin(rtc.Minutes10, rtc.Minutes);
-  tm.Hour   = bcd2bin(rtc.h24.Hour10, rtc.h24.Hour);
-  tm.Day    = bcd2bin(rtc.Date10, rtc.Date);
-  tm.Month  = bcd2bin(rtc.Month10, rtc.Month);
-  tm.Year   = bcd2bin(rtc.Year10, rtc.Year) - 1970 + 2000;
-
-  setTime(makeTime(tm));
-
-  /**************************************************/
-
   loop(); // Call the main loop (function that never returns)
 
   return 0;
@@ -126,6 +98,7 @@ void loop() {
   unsigned long var_millis;
   unsigned long last_dcf77_update = 0;
   tmElements_t tm;
+  ds1302_struct rtc;
   uint8_t btn_pressed = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
@@ -173,7 +146,8 @@ void loop() {
 
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
-    effects[selected_effect]->update(var_millis, dcf_synced, display_mode);
+    ds1302.clock_burst_read((uint8_t *) &rtc);
+    effects[selected_effect]->update(convert_rtc2datetime(&rtc), dcf_synced, display_mode);
 
     /** Button handling **/
     /* Next effect */
@@ -218,6 +192,24 @@ void loop() {
     */
     while (millis() - var_millis <= 34);
   }
+}
+
+inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc) {
+  BaseEffect::datetime dt;
+
+  dt.Seconds = rtc->Seconds;
+  dt.Seconds10 = rtc->Seconds10;
+  dt.Minutes = rtc->Minutes;
+  dt.Minutes10 = rtc->Minutes10;
+  dt.Hour = rtc->h24.Hour;
+  dt.Hour10 = rtc->h24.Hour10;
+
+  dt.Date = rtc->Date;
+  dt.Date10 = rtc->Date10;
+  dt.Month = rtc->Month;
+  dt.Month10 = rtc->Month10;
+
+  return dt;
 }
 
 /*

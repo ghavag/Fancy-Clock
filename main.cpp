@@ -99,6 +99,7 @@ void loop() {
   unsigned long last_dcf77_update = 0;
   tmElements_t tm;
   ds1302_struct rtc;
+  BaseEffect::datetime dt;
   uint8_t btn_pressed = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
@@ -147,7 +148,8 @@ void loop() {
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
 
     ds1302.clock_burst_read((uint8_t *) &rtc);
-    effects[selected_effect]->update(convert_rtc2datetime(&rtc), dcf_synced, display_mode);
+    convert_rtc2datetime(&rtc, &dt);
+    effects[selected_effect]->update(dt, dcf_synced, display_mode);
 
     /** Button handling **/
     /* Next effect */
@@ -196,22 +198,19 @@ void loop() {
   }
 }
 
-inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc) {
-  BaseEffect::datetime dt;
+inline void convert_rtc2datetime(ds1302_struct *s, BaseEffect::datetime *d) {
+  /* Destination = Source */
+  d->Seconds = s->Seconds;
+  d->Seconds10 = s->Seconds10;
+  d->Minutes = s->Minutes;
+  d->Minutes10 = s->Minutes10;
+  d->Hour = s->h24.Hour;
+  d->Hour10 = s->h24.Hour10;
 
-  dt.Seconds = rtc->Seconds;
-  dt.Seconds10 = rtc->Seconds10;
-  dt.Minutes = rtc->Minutes;
-  dt.Minutes10 = rtc->Minutes10;
-  dt.Hour = rtc->h24.Hour;
-  dt.Hour10 = rtc->h24.Hour10;
-
-  dt.Date = rtc->Date;
-  dt.Date10 = rtc->Date10;
-  dt.Month = rtc->Month;
-  dt.Month10 = rtc->Month10;
-
-  return dt;
+  d->Date = s->Date;
+  d->Date10 = s->Date10;
+  d->Month = s->Month;
+  d->Month10 = s->Month10;
 }
 
 inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d) {

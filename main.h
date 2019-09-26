@@ -46,14 +46,18 @@ void loop(void);
 
 /*
 * Converts a ds1302_struct into a BaseEffect::datetime struct
+*
+* Params:
+*   *s: Pointer to the source struct of type tmElements_t
+*   *d: Pointer to the destination struct of type ds1302_struct
 */
-inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc);
+inline void convert_rtc2datetime(ds1302_struct *s, BaseEffect::datetime *d);
 
 /*
 * Converts a tmElements_t struct into a ds1302_struct struct
 *
 * Params:
-*   *s: Pointer to the source struct
-*   *d: Pointer to the destination struct
+*   *s: Pointer to the source struct of type tmElements_t
+*   *d: Pointer to the destination struct of type ds1302_struct
 */
 inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d);

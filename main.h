@@ -34,6 +34,26 @@
 #include "effects/RandomColoredDigit.h"
 #include "effects/FadingColors.h"
 
+/*
+* The typical main function
+*/
 int main(void);
+
+/*
+* Starts the main loop which loops forever
+*/
 void loop(void);
+
+/*
+* Converts a ds1302_struct into a BaseEffect::datetime struct
+*/
 inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc);
+
+/*
+* Converts a tmElements_t struct into a ds1302_struct struct
+*
+* Params:
+*   *s: Pointer to the source struct
+*   *d: Pointer to the destination struct
+*/
+inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d);

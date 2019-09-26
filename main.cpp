@@ -102,7 +102,7 @@ void loop() {
   uint8_t btn_pressed = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
-  bool dcf_synced = true;
+  bool dcf_synced = false;
   uint8_t display_mode = 0;
   uint8_t abrightness[3];
   uint8_t tmp, nbm = 0; // Number brightness measurements
@@ -173,10 +173,12 @@ void loop() {
     }
 
     // Syncing clock with DCF77 if a new time is available
-    if (DCFtime = DCF.getTime()) {
+    if (DCF.getTimeAsStruct(&tm)) {
       printf("There is a new time!\n");
-      setTime(DCFtime);
-      //effects[selected_effect]->setBlinkingColon(false);
+
+      convert_tmElements_t2rtc(&tm, &rtc);
+      ds1302.clock_burst_write((uint8_t *) &rtc);
+
       dcf_synced = true;
       last_dcf77_update = var_millis;
     }
@@ -210,6 +212,32 @@ inline BaseEffect::datetime convert_rtc2datetime(ds1302_struct *rtc) {
   dt.Month10 = rtc->Month10;
 
   return dt;
+}
+
+inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d) {
+  /* Destination = Source */
+  d->Seconds    = bin2bcd_l(s->Second);
+  d->Seconds10  = bin2bcd_h(s->Second);
+  d->CH         = 0; // 1 for Clock Halt, 0 to run;
+  d->Minutes    = bin2bcd_l(s->Minute);
+  d->Minutes10  = bin2bcd_h(s->Minute);
+  // To use the 12 hour format,
+  // use it like these four lines:
+  //    d->h12.Hour   = bin2bcd_l( hours);
+  //    d->h12.Hour10 = bin2bcd_h( hours);
+  //    d->h12.AM_PM  = 0;     // AM = 0
+  //    d->h12.hour_12_24 = 1; // 1 for 24 hour format
+  d->h24.Hour   = bin2bcd_l(s->Hour);
+  d->h24.Hour10 = bin2bcd_h(s->Hour);
+  d->h24.hour_12_24 = 0; // 0 for 24 hour format
+  d->Date       = bin2bcd_l(s->Day);
+  d->Date10     = bin2bcd_h(s->Day);
+  d->Month      = bin2bcd_l(s->Month);
+  d->Month10    = bin2bcd_h(s->Month);
+  d->Day        = 0;
+  d->Year       = bin2bcd_l(s->Year + 1970 - 2000);
+  d->Year10     = bin2bcd_h(s->Year + 1970 - 2000);
+  d->WP = 0;
 }
 
 /*

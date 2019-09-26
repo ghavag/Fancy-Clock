@@ -22,9 +22,7 @@
 */
 
 #include "DCF77.h"       //https://github.com/thijse/Arduino-Libraries/downloads
-#include "../../time.h"
-//#include "../uart/uart.h"
-//#include <Utils.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <avr/io.h>
@@ -281,7 +279,6 @@ bool DCF77::processBuffer(void) {
 
 	//  Calculate parities for checking buffer
 	calculateBufferParities();
-	tmElements_t time;
 	bool proccessedSucces;
 
 	struct DCF77Buffer *rx_buffer;
@@ -327,6 +324,19 @@ unsigned long DCF77::getTime(void)
 }
 
 /**
+ * Fills a tmElements_t struct with the most recently received time
+ * Note, this only fills the struct once, until the next update
+ */
+bool DCF77::getTimeAsStruct(tmElements_t *tm) {
+	if (!receivedTimeUpdate()) {
+		return false;
+	} else {
+		*tm = time;
+		return true;
+	}
+}
+
+/**
  * Get most recently received time in UTC
  * Note, this only returns an time once, until the next update
  */
@@ -348,6 +358,7 @@ unsigned long DCF77::getTime(void)
 int DCF77::dCF77Pin=0;
 int DCF77::dCFinterrupt=0;
 uint8_t DCF77::pulseStart=HIGH;
+tmElements_t DCF77::time;
 
 // Parameters shared between interupt loop and main loop
 

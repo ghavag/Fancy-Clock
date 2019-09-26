@@ -1,12 +1,7 @@
 #ifndef DCF77_h
 #define DCF77_h
 
-//#if ARDUINO >= 100
-//#include <Arduino.h>
-//#else
-//#include <WProgram.h>
-//#endif
-//#include <Time.h>
+#include "../../time.h"
 #include <stdint.h>
 
 #define MIN_TIME 1334102400     // Date: 11-4-2012
@@ -29,6 +24,7 @@ private:
     static int dCF77Pin;
     static int dCFinterrupt;
     static uint8_t pulseStart;
+    static tmElements_t time;
 
     // DCF77 and internal timestamps
     static unsigned long previousUpdatedTime;
@@ -94,6 +90,7 @@ public:
     DCF77(int DCF77Pin, int DCFinterrupt, bool OnRisingFlank=true);
 
     static unsigned long getTime(void);
+    static bool getTimeAsStruct(tmElements_t *tm);
     static unsigned long getUTCTime(void);
     static void Start(void);
     static void Stop(void);

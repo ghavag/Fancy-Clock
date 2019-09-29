@@ -94,8 +94,6 @@ int main(void) {
 }
 
 void loop() {
-  unsigned char s, m, h;
-  unsigned long DCFtime;
   unsigned long var_millis;
   unsigned long last_dcf77_update = 0;
   tmElements_t tm;

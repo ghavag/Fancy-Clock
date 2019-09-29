@@ -72,9 +72,10 @@ int main(void) {
   * Setup button inputs
   * Pins are inputs by default, enable only internal pull up resistors
   */
-  PORTB |= _BV(PB2);
-  PORTB |= _BV(PD1);
-  PORTD |= _BV(PD7);
+  PORTD |= _BV(PD7); // Arduino Nano pin D7 / Button: Switch display mode
+  PORTB |= _BV(PB0); // Arduino Nano pin D8 / Button: Toggle time_ok
+  PORTB |= _BV(PB1); // Arduino Nano pin D9 / Button: Next sub-effect
+  PORTB |= _BV(PB2); // Arduino Nano pin D10 / Button: Next effect
 
   /* Setup potentiometer for brightness control */
   ADMUX = _BV(REFS0); // Use Vcc as reference voltage source
@@ -101,9 +102,10 @@ void loop() {
   ds1302_struct rtc;
   BaseEffect::datetime dt;
   uint8_t btn_pressed = 0;
+  uint8_t btn_time_ok_press_time = 0;
   BaseEffect *effects[EFFECT_COUNT];
   uint8_t selected_effect = 0;
-  bool dcf_synced = false;
+  bool time_ok = false;
   uint8_t display_mode = 0;
   uint8_t abrightness[3];
   uint8_t tmp, nbm = 0; // Number brightness measurements
@@ -149,7 +151,7 @@ void loop() {
 
     ds1302.clock_burst_read((uint8_t *) &rtc);
     convert_rtc2datetime(&rtc, &dt);
-    effects[selected_effect]->update(dt, dcf_synced, display_mode);
+    effects[selected_effect]->update(dt, time_ok, display_mode);
 
     /** Button handling **/
     /* Next effect */
@@ -173,6 +175,13 @@ void loop() {
     } else if (PIND & _BV(PD7)) {
       btn_pressed &= (0xFF - BTN_DISPLAY_MODE);
     }
+    /* Time ok */
+    if (!(PINB & _BV(PB0))) {
+      if (btn_time_ok_press_time == 60) time_ok = !time_ok;
+      if (btn_time_ok_press_time < 61) btn_time_ok_press_time++;
+    } else {
+      btn_time_ok_press_time = 0;
+    }
 
     // Syncing clock with DCF77 if a new time is available
     if (DCF.getTimeAsStruct(&tm)) {
@@ -181,13 +190,13 @@ void loop() {
       convert_tmElements_t2rtc(&tm, &rtc);
       ds1302.clock_burst_write((uint8_t *) &rtc);
 
-      dcf_synced = true;
+      time_ok = true;
       last_dcf77_update = var_millis;
     }
     // Let the colon blink again if the last sync was too long ago
     else if (var_millis - last_dcf77_update > DCF77_MAX_SYNC_AGE) {
       //effects[selected_effect]->setBlinkingColon(true);
-      dcf_synced = false;
+      time_ok = false;
     }
 
     /*

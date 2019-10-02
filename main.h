@@ -33,6 +33,7 @@
 #include "effects/SimpleColor.h"
 #include "effects/RandomColoredDigit.h"
 #include "effects/FadingColors.h"
+#include "effects/FadingDigits.h"
 
 /*
 * The typical main function

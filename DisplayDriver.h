@@ -77,9 +77,17 @@ public:
   *
   * Params:
   *   index: Index of the LED at which 0 addresses the first LED
-  *   The RGB value to assign to the LED
+  *   px_value: The RGB value to assign to the LED
   */
   uint8_t setLED(uint16_t index, cRGB px_value);
+
+  /*
+  * Gets the RGB value of an LED
+  *
+  * Params:
+  *   index: Index of the LED at which 0 addresses the first LED
+  */
+  cRGB getLED(uint16_t index);
 
   /*
   * Writes the data to the LEDs

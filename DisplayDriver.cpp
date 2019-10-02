@@ -110,6 +110,10 @@ uint8_t DisplayDriver::setLED(uint16_t index, cRGB px_value) {
   set_crgb_at(index, px_value);
 }
 
+cRGB DisplayDriver::getLED(uint16_t index) {
+  return get_crgb_at(index);
+}
+
 void DisplayDriver::sync() {
   WS2812::sync();
 }

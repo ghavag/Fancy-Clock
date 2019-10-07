@@ -200,10 +200,10 @@ void loop() {
     }
 
     /*
-    * Waiting for 34 milliseconds results in calling the update() method of the
-    * effects ~29.4 times per second.
+    * Waiting for 32 milliseconds results in calling the update() method of the
+    * effects ~31 times per second.
     */
-    while (millis() - var_millis <= 34);
+    while (millis() - var_millis < 32);
   }
 }
 

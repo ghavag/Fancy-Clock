@@ -41,21 +41,24 @@ public:
   int nextSubEffect();
 
 protected:
+  uint8_t selected_sub_effect; // Index of the current selected sub-effect
   cRGB color; // Color currently used to display the time
-  cRGB fading_in_color[4];
-  cRGB fading_out_color[4];
 
+  /* For each digit three color values are hold */
+  cRGB fading_in_color[4]; // LED colors of the current digits
+  cRGB fading_out_color[4]; // LED colors of the previous digits
+  cRGB both_color[4]; // LED colors belongig to the current and previous digit
+
+  /* Variables to help track the digit transmissions */
   uint8_t dv[4];
   uint8_t dv_old[4];
   uint8_t dv_last[4];
 
-  //uint8_t selected_sub_effect;
-
-  uint8_t speed;
-
   void displayCurrentTime(cRGB color, uint8_t dm);
 
   void setDigit(uint8_t index, uint8_t digit, cRGB color);
+
+  void applySubEffect(uint8_t sub_eff);
 };
 
 #endif //FADING_DIGITS_H_

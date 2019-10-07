@@ -20,15 +20,16 @@
  */
 
 #include "FadingDigits.h"
+#include <stdlib.h>
 
-#define FADING_DIGITS_SPEED 4
+// 8 gives a transmission time of max. 1 second (1/32 * 256/8)
+#define FADING_DIGITS_SPEED 8
+
+#define EFFECT_COUNT 10
 
 FadingDigits::FadingDigits(DisplayDriver *DD) : BaseEffect(DD) {
-  speed = 1;
-
-  color.r = 0;
-  color.g = 0;
-  color.b = 0;
+  selected_sub_effect = 0;
+  applySubEffect(selected_sub_effect);
 
   for (int i = 0; i < 4; i++) {
     fading_in_color[i].r = 0;
@@ -38,6 +39,10 @@ FadingDigits::FadingDigits(DisplayDriver *DD) : BaseEffect(DD) {
     fading_out_color[i].r = 0;
     fading_out_color[i].g = 0;
     fading_out_color[i].b = 0;
+
+    both_color[i].r = 0;
+    both_color[i].g = 0;
+    both_color[i].b = 0;
   }
 }
 
@@ -50,7 +55,58 @@ void FadingDigits::update(datetime dt, bool time_is_synched, uint8_t dm) {
 }
 
 int FadingDigits::nextSubEffect() {
-  return 0;
+  selected_sub_effect = (selected_sub_effect + 1) % EFFECT_COUNT;
+  applySubEffect(selected_sub_effect);
+
+  return selected_sub_effect;
+}
+
+void FadingDigits::applySubEffect(uint8_t sub_eff) {
+  switch (sub_eff) {
+    // Effect 0 handled by default branch
+    case 1:
+      color.r = 0;
+      color.g = 255;
+      color.b = 0;
+      break;
+    case 2:
+      color.r = 0;
+      color.g = 0;
+      color.b = 255;
+      break;
+    case 3:
+      color.r = 255;
+      color.g = 255;
+      color.b = 0;
+      break;
+    case 4:
+      color.r = 255;
+      color.g = 0;
+      color.b = 255;
+      break;
+    case 5:
+      color.r = 0;
+      color.g = 255;
+      color.b = 255;
+      break;
+    case 6:
+      color.r = 255;
+      color.g = 255;
+      color.b = 255;
+      break;
+    case 7:
+    case 8:
+    case 9:
+      srand(millis() % 0xFFFF);
+      color = generateRandomColor();
+      break;
+    default:
+      color.r = 255;
+      color.g = 0;
+      color.b = 0;
+  }
+
+  blinking_colon_color = color;
 }
 
 void FadingDigits::displayCurrentTime(cRGB color, uint8_t dm) {
@@ -60,18 +116,67 @@ void FadingDigits::displayCurrentTime(cRGB color, uint8_t dm) {
     if (dv[i] != dv_old[i]) {
       dv_last[i] = dv_old[i];
       dv_old[i] = dv[i];
+      both_color[i] = fading_in_color[i];
       fading_out_color[i] = fading_in_color[i];
       fading_in_color[i].g = 0;
-    } else if (fading_in_color[i].g < (255 - FADING_DIGITS_SPEED)) {
-      fading_in_color[i].g += FADING_DIGITS_SPEED;
     } else {
-      fading_in_color[i].g = 255;
-    }
+      /* Update fading in color */
+      if (fading_in_color[i].r < (color.r - FADING_DIGITS_SPEED)) {
+        fading_in_color[i].r += FADING_DIGITS_SPEED;
+      } else {
+        fading_in_color[i].r = color.r;
+      }
 
-    if (fading_out_color[i].g > FADING_DIGITS_SPEED)
-      fading_out_color[i].g -= FADING_DIGITS_SPEED;
-    else
-      fading_out_color[i].g = 0;
+      if (fading_in_color[i].g < (color.g - FADING_DIGITS_SPEED)) {
+        fading_in_color[i].g += FADING_DIGITS_SPEED;
+      } else {
+        fading_in_color[i].g = color.g;
+      }
+
+      if (fading_in_color[i].b < (color.b - FADING_DIGITS_SPEED)) {
+        fading_in_color[i].b += FADING_DIGITS_SPEED;
+      } else {
+        fading_in_color[i].b = color.b;
+      }
+
+      /* Update both color */
+      if (both_color[i].r < (color.r - FADING_DIGITS_SPEED)) {
+        both_color[i].r += FADING_DIGITS_SPEED;
+      } else {
+        both_color[i].r = color.r;
+      }
+
+      if (both_color[i].g < (color.g - FADING_DIGITS_SPEED)) {
+        both_color[i].g += FADING_DIGITS_SPEED;
+      } else {
+        both_color[i].g = color.g;
+      }
+
+      if (both_color[i].b < (color.b - FADING_DIGITS_SPEED)) {
+        both_color[i].b += FADING_DIGITS_SPEED;
+      } else {
+        both_color[i].b = color.b;
+      }
+
+      /* Update fading out color */
+      if (fading_out_color[i].r > FADING_DIGITS_SPEED) {
+        fading_out_color[i].r -= FADING_DIGITS_SPEED;
+      } else {
+        fading_out_color[i].r = 0;
+      }
+
+      if (fading_out_color[i].g > FADING_DIGITS_SPEED) {
+        fading_out_color[i].g -= FADING_DIGITS_SPEED;
+      } else {
+        fading_out_color[i].g = 0;
+      }
+
+      if (fading_out_color[i].b > FADING_DIGITS_SPEED) {
+        fading_out_color[i].b -= FADING_DIGITS_SPEED;
+      } else {
+        fading_out_color[i].b = 0;
+      }
+    }
   }
 
   setDigit(0, dv[0], color);
@@ -88,11 +193,23 @@ void FadingDigits::setDigit(uint8_t index, uint8_t digit, cRGB color) {
   for (int i = 0; i < LEDCountPerDigit; i++) {
     //value = pDisplayDriver->getLED(i + index * LEDCountPerDigit + 2);
 
+    // The current LED belongs to the current digit
     if (bit_map_new & ((unsigned long long) 1 << i)) {
-      value = fading_in_color[index];
-    } else if (bit_map_last & ((unsigned long long) 1 << i)) {
+      // The current LED belongs to the previous digit as well
+      if (bit_map_last & ((unsigned long long) 1 << i)) {
+        value = both_color[index];
+      }
+      // The current LED belongs only to the current digit
+      else {
+        value = fading_in_color[index];
+      }
+    }
+    // The current LED belongs to the previous digit
+    else if (bit_map_last & ((unsigned long long) 1 << i)) {
       value = fading_out_color[index];
-    } else {
+    }
+    // The current LED belongs neither to the previous nor to the current digit
+    else {
       value.r = value.g = value.b = 0;
     }
 

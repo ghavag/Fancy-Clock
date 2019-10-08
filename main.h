@@ -34,6 +34,10 @@
 #include "effects/RandomColoredDigit.h"
 #include "effects/FadingColors.h"
 #include "effects/FadingDigits.h"
+#include "effects/ColorExplosion.h"
+#include "effects/ColorExplosionRed.h"
+#include "effects/ColorExplosionGreen.h"
+#include "effects/ColorExplosionBlue.h"
 
 /*
 * The typical main function

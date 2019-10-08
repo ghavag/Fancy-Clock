@@ -36,7 +36,7 @@
 #define DCF77_MAX_SYNC_AGE 4294967295UL // 49.7103 days (biggest possible value)
 
 /* Number of effets (always as much as effect header files are included) */
-#define EFFECT_COUNT 4
+#define EFFECT_COUNT 8
 
 DCF77 DCF = DCF77(0, 0);
 
@@ -117,6 +117,14 @@ void loop() {
   effects[2] = &eff_fc;
   FadingDigits eff_fd = FadingDigits(&DispDrv);
   effects[3] = &eff_fd;
+  ColorExplosion eff_ce = ColorExplosion(&DispDrv);
+  effects[4] = &eff_ce;
+  ColorExplosionRed eff_cer = ColorExplosionRed(&DispDrv);
+  effects[5] = &eff_cer;
+  ColorExplosionGreen eff_ceg = ColorExplosionGreen(&DispDrv);
+  effects[6] = &eff_ceg;
+  ColorExplosionBlue eff_ceb = ColorExplosionBlue(&DispDrv);
+  effects[7] = &eff_ceb;
 
   /* Dummy read of brightness potentiometer */
   ADCSRA |= _BV(ADSC);

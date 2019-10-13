@@ -52,11 +52,15 @@ int ColorExplosion::nextSubEffect() {
 
 void ColorExplosion::update(datetime dt, bool time_is_synched, uint8_t dm) {
   uint8_t dv[4];
+  static uint8_t old_max_brightness;
 
   base_update(dt, time_is_synched, dm);
   getDigitValues(dv, dm);
 
-  if (delay == 0) {
+  if (old_max_brightness != pDisplayDriver->max_brightness) {
+    k = 0;
+    old_max_brightness = pDisplayDriver->max_brightness;
+  } else if (delay == 0) {
     k = 1;
 
     for (uint8_t i = 0; i < 4; i++) {

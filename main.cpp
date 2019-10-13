@@ -166,6 +166,7 @@ void loop() {
     if (!(PIND & _BV(PD7)) && !(btn_pressed & BTN_NEXT_EFFECT)) {
       btn_pressed |= BTN_NEXT_EFFECT;
       selected_effect = (selected_effect + 1) % EFFECT_COUNT;
+      effects[selected_effect]->select();
     } else if (PIND & _BV(PD7)) {
       btn_pressed &= (0xFF - BTN_NEXT_EFFECT);
     }

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 ColorExplosion::ColorExplosion(DisplayDriver *DD) : BaseEffect(DD) {
+  k = 0;
   applySubEffect(0);
 }
 
@@ -51,8 +52,6 @@ int ColorExplosion::nextSubEffect() {
 
 void ColorExplosion::update(datetime dt, bool time_is_synched, uint8_t dm) {
   uint8_t dv[4];
-  static uint8_t old_dv[4];
-  static uint8_t k = 0;
 
   base_update(dt, time_is_synched, dm);
   getDigitValues(dv, dm);
@@ -82,6 +81,19 @@ void ColorExplosion::update(datetime dt, bool time_is_synched, uint8_t dm) {
   }
 
   pDisplayDriver->sync();
+}
+
+void ColorExplosion::select() {
+  BaseEffect::select();
+
+  /*
+  * Set to a value that is never displayed to force update the display next
+  * time update() is called for the case the display gets only updated if a
+  * digit has changed (delay = 0).
+  */
+  old_dv[0] = 255;
+
+  if (delay > 1) k = delay - 1;
 }
 
 void ColorExplosion::update_blinking_colon() {

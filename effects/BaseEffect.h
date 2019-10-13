@@ -99,6 +99,14 @@ public:
   */
   virtual int nextSubEffect() = 0;
 
+  /*
+  * Sould be called on effect switch to notify the new effect that it has just
+  * been selected. For example some effects may update the display only
+  * occasionally so that the display still shows the content of the privious
+  * effect. In that case calling this method would force update the display.
+  */
+  virtual void select();
+
 protected:
   /* Pointer to the display driver */
   DisplayDriver *pDisplayDriver;
@@ -149,8 +157,7 @@ protected:
   virtual void displayCurrentTime(cRGB color, uint8_t dm);
 
   /*
-  * Generate a random color value. The user must initialize the random number
-  * generator (by e. g. calling srand()).
+  * Generate a random color value.
   *
   * return: A random color as struct cRGB.
   */

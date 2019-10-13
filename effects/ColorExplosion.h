@@ -39,6 +39,8 @@ public:
 
   void update(datetime dt, bool time_is_synched, uint8_t dm);
 
+  void select();
+
   int nextSubEffect();
 
 protected:
@@ -46,6 +48,8 @@ protected:
 
   uint8_t selected_sub_effect; // Index of the current selected sub-effect
   uint8_t delay; // Update only every delay update() method call
+  uint8_t k = 0; // Counter to count from 0 to (deplay - 1)
+  uint8_t old_dv[4]; // Holds the last displayed digits.
 
   /*
   * Activates a sub-effect

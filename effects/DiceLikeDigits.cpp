@@ -84,3 +84,56 @@ void DiceLikeDigits::applySubEffect(uint8_t sub_eff) {
 
   blinking_colon_color = color;
 }
+
+void DiceLikeDigits::displayCurrentTime(cRGB color, uint8_t dm) {
+  uint8_t dv[4];
+
+  getDigitValues(dv, dm);
+
+  setDigit(0, dv[0], color);
+  setDigit(1, dv[1], color);
+  setDigit(2, dv[2], color);
+  setDigit(3, dv[3], color);
+}
+
+void DiceLikeDigits::setDigit(uint8_t index, uint8_t digit, cRGB color) {
+  unsigned long long bit_map = getDigitBitMap(digit);
+  cRGB value;
+
+  for (int i = 0; i < LEDCountPerDigit; i++) {
+    if (bit_map & ((unsigned long long) 1 << i)) {
+      value = color;
+    } else {
+      value.r = value.g = value.b = 0;
+    }
+
+    pDisplayDriver->setLED(i + index * LEDCountPerDigit + 2, value);
+  }
+}
+
+unsigned long long DiceLikeDigits::getDigitBitMap(uint8_t digit) {
+  switch (digit) {
+    case 0:
+      return 0xACADCB2B6;
+    case 1:
+      return 0x16DB0000;
+    case 2:
+      return 0x4F5B02CB281;
+    case 3:
+      return 0x130ACB2CB200;
+    case 4:
+      return 0x520016FB05C0;
+    case 5:
+      return 0x890ACB016D82;
+    case 6:
+      return 0x310ACB0CB2B6;
+    case 7:
+      return 0x16DB6C00;
+    case 8:
+      return 0x730ACB2CB2CA;
+    case 9:
+      return 0x520ACADCB2C2;
+    default:
+      return 0;
+  }
+}

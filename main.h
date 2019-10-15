@@ -38,6 +38,7 @@
 #include "effects/ColorExplosionRed.h"
 #include "effects/ColorExplosionGreen.h"
 #include "effects/ColorExplosionBlue.h"
+#include "effects/DiceLikeDigits.h"
 
 /*
 * The typical main function

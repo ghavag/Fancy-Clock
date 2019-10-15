@@ -113,27 +113,25 @@ void DiceLikeDigits::setDigit(uint8_t index, uint8_t digit, cRGB color) {
 
 unsigned long long DiceLikeDigits::getDigitBitMap(uint8_t digit) {
   switch (digit) {
-    case 0:
-      return 0xACADCB2B6;
     case 1:
-      return 0x16DB0000;
+      return 0x100000000000;
     case 2:
-      return 0x4F5B02CB281;
+      return 0x10001;
     case 3:
-      return 0x130ACB2CB200;
+      return 0x100000010001;
     case 4:
-      return 0x520016FB05C0;
+      return 0x10010401;
     case 5:
-      return 0x890ACB016D82;
+      return 0x100010010401;
     case 6:
-      return 0x310ACB0CB2B6;
+      return 0x10410411;
     case 7:
-      return 0x16DB6C00;
+      return 0x100010410411;
     case 8:
-      return 0x730ACB2CB2CA;
+      return 0x10910425;
     case 9:
-      return 0x520ACADCB2C2;
+      return 0x100010910425;
     default:
-      return 0;
+      return 0x0;
   }
 }

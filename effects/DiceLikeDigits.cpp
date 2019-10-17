@@ -29,9 +29,18 @@ DiceLikeDigits::DiceLikeDigits(DisplayDriver *DD) : BaseEffect(DD) {
 }
 
 void DiceLikeDigits::update(datetime dt, bool time_is_synched, uint8_t dm) {
+  uint8_t dv[4];
+
+  blinking_colon_color = getColor(0);
+
   base_update(dt, time_is_synched, dm);
 
-  displayCurrentTime(color, dm);
+  getDigitValues(dv, dm);
+
+  setDigit(0, dv[0], getColor(1));
+  setDigit(1, dv[1], getColor(2));
+  setDigit(2, dv[2], getColor(1));
+  setDigit(3, dv[3], getColor(2));
 
   pDisplayDriver->sync();
 }
@@ -85,17 +94,6 @@ void DiceLikeDigits::applySubEffect(uint8_t sub_eff) {
   blinking_colon_color = color;
 }
 
-void DiceLikeDigits::displayCurrentTime(cRGB color, uint8_t dm) {
-  uint8_t dv[4];
-
-  getDigitValues(dv, dm);
-
-  setDigit(0, dv[0], color);
-  setDigit(1, dv[1], color);
-  setDigit(2, dv[2], color);
-  setDigit(3, dv[3], color);
-}
-
 void DiceLikeDigits::setDigit(uint8_t index, uint8_t digit, cRGB color) {
   unsigned long long bit_map = getDigitBitMap(digit);
   cRGB value;
@@ -116,22 +114,50 @@ unsigned long long DiceLikeDigits::getDigitBitMap(uint8_t digit) {
     case 1:
       return 0x100000000000;
     case 2:
-      return 0x10001;
+      return 0x80002;
     case 3:
-      return 0x100000010001;
+      return 0x100000080002;
     case 4:
-      return 0x10010401;
+      return 0x2080082;
     case 5:
-      return 0x100010010401;
+      return 0x100002080082;
     case 6:
-      return 0x10410411;
+      return 0x2480092;
     case 7:
-      return 0x100010410411;
+      return 0x100002480092;
     case 8:
-      return 0x10910425;
+      return 0x29800A6;
     case 9:
-      return 0x100010910425;
+      return 0x1000029800A6;
     default:
       return 0x0;
   }
+}
+
+cRGB DiceLikeDigits::getColor(uint8_t n) {
+  cRGB value;
+
+  switch (n) {
+    case 0: // Red
+      value.r = 255;
+      value.g = 0;
+      value.b = 0;
+      break;
+    case 1: // Green
+      value.r = 0;
+      value.g = 255;
+      value.b = 0;
+      break;
+    case 2:
+      value.r = 0;
+      value.g = 0;
+      value.b = 255;
+      break;
+    default:
+      value.r = 0;
+      value.g = 0;
+      value.b = 0;
+  }
+
+  return value;
 }

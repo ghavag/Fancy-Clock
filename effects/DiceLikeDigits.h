@@ -54,11 +54,11 @@ private:
   */
   void applySubEffect(uint8_t sub_eff);
 
-  void displayCurrentTime(cRGB color, uint8_t dm);
-
   void setDigit(uint8_t index, uint8_t digit, cRGB color);
 
   unsigned long long getDigitBitMap(uint8_t digit);
+
+  cRGB getColor(uint8_t n);
 };
 
 #endif //DICE_LIKE_DIGITS_H_

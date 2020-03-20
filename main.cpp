@@ -20,6 +20,8 @@
 
 #include "main.h"
 
+//#define DEBUG
+
 #define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
 #define BTN_NEXT_EFFECT 1
@@ -108,6 +110,10 @@ void loop() {
   uint8_t abrightness[3];
   uint8_t tmp, nbm = 0; // Number brightness measurements
 
+  #ifdef DEBUG
+  uint8_t debug_time_print_delay = 0;
+  #endif
+
   /* Instantiate all effets */
   SimpleColor eff_sc = SimpleColor(&DispDrv);
   effects[0] = &eff_sc;
@@ -134,6 +140,8 @@ void loop() {
   (void) ADCW;
 
   ADCSRA |= _BV(ADSC); // First "real" read of brightness potentiometer
+
+  printf("Entering main loop!\n");
 
   while(1) {
     var_millis = millis();
@@ -209,6 +217,18 @@ void loop() {
       //effects[selected_effect]->setBlinkingColon(true);
       time_ok = false;
     }
+
+  #ifdef DEBUG
+	if (debug_time_print_delay > 30) {
+		debug_time_print_delay = 0;
+
+		printf("Time: %d.%d.%d %02d:%02d:%02d\n",
+      bcd2bin(rtc.Date10, rtc.Date), bcd2bin(rtc.Month10, rtc.Month), 2000 + bcd2bin( rtc.Year10, rtc.Year),
+      bcd2bin(rtc.h24.Hour10, rtc.h24.Hour), bcd2bin(rtc.Minutes10, rtc.Minutes), bcd2bin(rtc.Seconds10, rtc.Seconds));
+	} else {
+		debug_time_print_delay++;
+	}
+  #endif
 
     /*
     * Waiting for 32 milliseconds results in calling the update() method of the

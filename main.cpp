@@ -24,6 +24,14 @@
 
 #define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
+/*
+* For the case the clock is running fast one second will be subtracted after
+* each period of CORRECTOR_PERIOD seconds. For instance for my clock I measured
+* a time gain of 6.3636 seconds per day. Thus one second must be subtracted
+* after each period of 14400 (60*60*24/6) seconds.
+*/
+#define CORRECTOR_PERIOD 14400
+
 #define BTN_NEXT_EFFECT 1
 #define BTN_NEXT_SUB_EFFECT 2
 #define BTN_DISPLAY_MODE 4
@@ -110,6 +118,11 @@ void loop() {
   uint8_t abrightness[5];
   uint8_t tmp, nbm = 0; // Number brightness measurements
 
+  #ifdef CORRECTOR_PERIOD
+  unsigned int cp_past_seconds = 0;
+  int8_t cp_last_sec_value = -1;
+  #endif
+
   #ifdef DEBUG
   uint8_t debug_time_print_delay = 0;
   #endif
@@ -171,6 +184,34 @@ void loop() {
     convert_rtc2datetime(&rtc, &dt);
     effects[selected_effect]->update(dt, time_ok, display_mode);
 
+    #ifdef CORRECTOR_PERIOD
+      if (cp_last_sec_value < 0) {
+        cp_last_sec_value = rtc.Seconds;
+      } else if (cp_last_sec_value != rtc.Seconds) {
+        cp_past_seconds++;
+        cp_last_sec_value = rtc.Seconds;
+      }
+
+      /*
+      * Note: We don't want to subtract the correction second if the current second is zero,
+      * because we when would have to take care about the minutes, hours etc. as well.
+      */
+      if (rtc.Seconds10 != 0 && rtc.Seconds != 0 && cp_past_seconds >= CORRECTOR_PERIOD) {
+        // Use cp_last_sec_value temporarily to do calculations
+        cp_last_sec_value = bcd2bin(rtc.Seconds10, rtc.Seconds);
+        cp_last_sec_value--;
+        cp_past_seconds %= CORRECTOR_PERIOD;
+
+        rtc.Seconds = bin2bcd_l(cp_last_sec_value);
+        rtc.Seconds10 = bin2bcd_h(cp_last_sec_value);
+        ds1302.clock_burst_write((uint8_t *) &rtc);
+
+        cp_last_sec_value = rtc.Seconds;
+
+        printf("Corrector second was applied.\n");
+      }
+    #endif
+
     /** Button handling **/
     /* Next effect */
     if (!(PIND & _BV(PD7)) && !(btn_pressed & BTN_NEXT_EFFECT)) {
@@ -211,6 +252,11 @@ void loop() {
 
       time_ok = true;
       last_dcf77_update = var_millis;
+
+      #ifdef CORRECTOR_PERIOD
+      cp_past_seconds = 0;
+      cp_last_sec_value = 0;
+      #endif
     }
     // Let the colon blink again if the last sync was too long ago
     else if (var_millis - last_dcf77_update > DCF77_MAX_SYNC_AGE) {

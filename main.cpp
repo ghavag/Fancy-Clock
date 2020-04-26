@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-//#define DEBUG
+#define DEBUG
 
 #define MAXIMUM_BRIGHTNESS 128 // Number between 0 and 255
 
@@ -107,7 +107,7 @@ void loop() {
   uint8_t selected_effect = 0;
   bool time_ok = false;
   uint8_t display_mode = 0;
-  uint8_t abrightness[3];
+  uint8_t abrightness[5];
   uint8_t tmp, nbm = 0; // Number brightness measurements
 
   #ifdef DEBUG

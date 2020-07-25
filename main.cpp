@@ -26,11 +26,11 @@
 
 /*
 * For the case the clock is running fast one second will be subtracted after
-* each period of CORRECTOR_PERIOD seconds. For instance for my clock I measured
-* a time gain of 6.3636 seconds per day. Thus one second must be subtracted
-* after each period of 14400 (60*60*24/6) seconds.
+* each period of CORRECTOR_PERIOD seconds. For instance if the clock gains 10
+* seconds per day, one second must be subtracted after each 8640 (60*60*24/10)
+* seconds.
 */
-#define CORRECTOR_PERIOD 14400
+#define CORRECTOR_PERIOD 14916
 
 #define BTN_NEXT_EFFECT 1
 #define BTN_NEXT_SUB_EFFECT 2

@@ -159,10 +159,14 @@ void loop() {
   while(1) {
     var_millis = millis();
 
-    /* Read the brightness potentiometer and apply the brightness */
+    /* Read the brightness potentiometer and collect a few results */
     while(ADCSRA & _BV(ADSC));
     abrightness[nbm++] = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
 
+    /*
+    * Occasionally we measure garbage (voltage spikes). This is mitigated by
+    * collecting a few measure results and then take the lowest value.
+    */
     if (nbm >= sizeof(abrightness)/sizeof(uint8_t)) {
       for (uint8_t i = 0; i < (sizeof(abrightness)/sizeof(uint8_t) - 1); i++) {
         for (nbm = i + 1; nbm < sizeof(abrightness)/sizeof(uint8_t); nbm++) {
@@ -174,7 +178,7 @@ void loop() {
         }
       }
 
-      DispDrv.max_brightness = abrightness[sizeof(abrightness)/sizeof(uint8_t)/2 + 1];
+      DispDrv.max_brightness = abrightness[0];
       nbm = 0;
     }
 

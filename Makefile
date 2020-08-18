@@ -30,3 +30,7 @@ clean:
 
 flash:
 	avrdude $(PFLAGS) -U flash:w:$(OFILE)
+
+rflash:
+	scp $(OFILE) pi@alexrpi3:/tmp
+	ssh pi@alexrpi3 -C avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:/tmp/$(OFILE)

@@ -115,8 +115,8 @@ void loop() {
   uint8_t selected_effect = 0;
   bool time_ok = false;
   uint8_t display_mode = 0;
-  uint8_t abrightness[5];
-  uint8_t tmp, nbm = 0; // Number brightness measurements
+  uint8_t brightness_last_read, brightness_diff_cnt = 0;
+  int16_t brightness_last_stable = 0;
 
   #ifdef CORRECTOR_PERIOD
   unsigned int cp_past_seconds = 0;
@@ -161,25 +161,20 @@ void loop() {
 
     /* Read the brightness potentiometer and collect a few results */
     while(ADCSRA & _BV(ADSC));
-    abrightness[nbm++] = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
+    brightness_last_read = (float)MAXIMUM_BRIGHTNESS/1023*ADCW;
 
-    /*
-    * Occasionally we measure garbage (voltage spikes). This is mitigated by
-    * collecting a few measure results and then take the lowest value.
-    */
-    if (nbm >= sizeof(abrightness)/sizeof(uint8_t)) {
-      for (uint8_t i = 0; i < (sizeof(abrightness)/sizeof(uint8_t) - 1); i++) {
-        for (nbm = i + 1; nbm < sizeof(abrightness)/sizeof(uint8_t); nbm++) {
-          if (abrightness[i] > abrightness[nbm]) {
-            tmp = abrightness[i];
-            abrightness[i] = abrightness[nbm];
-            abrightness[nbm] = tmp;
-          }
-        }
-      }
+    if ((brightness_last_read > (brightness_last_stable + 5)) && brightness_diff_cnt >= 0) {
+      brightness_diff_cnt++;
+    } else if (brightness_last_read < (brightness_last_stable - 5) && brightness_diff_cnt <= 0) {
+      brightness_diff_cnt--;
+    } else {
+      brightness_diff_cnt = 0;
+    }
 
-      DispDrv.max_brightness = abrightness[0];
-      nbm = 0;
+    if (abs(brightness_diff_cnt) > 6) {
+      brightness_diff_cnt = 0;
+      brightness_last_stable = brightness_last_read;
+      DispDrv.max_brightness = brightness_last_read;
     }
 
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)

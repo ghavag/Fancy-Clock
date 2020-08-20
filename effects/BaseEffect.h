@@ -91,6 +91,22 @@ public:
   virtual void update(datetime dt, bool time_is_synched, uint8_t dm) = 0;
 
   /*
+  * Returns the number of sub-effects a effect has.
+  *
+  * return:
+  *   = 0: No or unspecific number of sub-effects
+  *   > 0: Number of sub-effects
+  */
+  virtual uint8_t getNumberOfSubEffects();
+
+  /*
+  * Select a sub-effect
+  *
+  * sub_eff: The number of the sub-effect starting from 0
+  */
+  virtual void applySubEffect(uint8_t sub_eff);
+
+  /*
   * Effects may implement some sub-effects. If this method is called, the
   * effect shall switch to the next sub-effect. If the last sub-effect is
   * selected, the first sub-effect shall be selected again.
@@ -102,7 +118,7 @@ public:
   /*
   * Sould be called on effect switch to notify the new effect that it has just
   * been selected. For example some effects may update the display only
-  * occasionally so that the display still shows the content of the privious
+  * occasionally so that the display still shows the content of the previous
   * effect. In that case calling this method would force update the display.
   */
   virtual void select();

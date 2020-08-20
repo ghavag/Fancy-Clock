@@ -21,7 +21,7 @@
 
 #include "FadingColors.h"
 
-#define EFFECT_COUNT 2
+#define SUB_EFFECT_COUNT 2
 
 FadingColors::FadingColors(DisplayDriver *DD) : BaseEffect(DD) {
   selected_sub_effect = 0; // Sub-effect 0 equals speed = 1
@@ -72,11 +72,19 @@ void FadingColors::update(datetime dt, bool time_is_synched, uint8_t dm) {
   pDisplayDriver->sync();
 }
 
-int FadingColors::nextSubEffect() {
-  selected_sub_effect = (selected_sub_effect + 1) % 2;
+uint8_t FadingColors::getNumberOfSubEffects() {
+  return SUB_EFFECT_COUNT;
+}
 
+void FadingColors::applySubEffect(uint8_t sub_eff) {
   if (selected_sub_effect == 1) speed = 10;
   else speed = 1;
+}
+
+int FadingColors::nextSubEffect() {
+  selected_sub_effect = (selected_sub_effect + 1) % SUB_EFFECT_COUNT;
+
+  applySubEffect(selected_sub_effect);
 
   return selected_sub_effect;
 }

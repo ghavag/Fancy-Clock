@@ -38,6 +38,10 @@ public:
 
   void update(datetime dt, bool time_is_synched, uint8_t dm);
 
+  uint8_t getNumberOfSubEffects();
+
+  void applySubEffect(uint8_t sub_eff);
+
   int nextSubEffect();
 
 protected:
@@ -57,8 +61,6 @@ protected:
   void displayCurrentTime(cRGB color, uint8_t dm);
 
   void setDigit(uint8_t index, uint8_t digit, cRGB color);
-
-  void applySubEffect(uint8_t sub_eff);
 };
 
 #endif //FADING_DIGITS_H_

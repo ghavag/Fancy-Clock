@@ -21,7 +21,7 @@
 
 #include "DiceLikeDigits.h"
 
-#define EFFECT_COUNT 7
+#define SUB_EFFECT_COUNT 7
 
 DiceLikeDigits::DiceLikeDigits(DisplayDriver *DD) : BaseEffect(DD) {
   selected_sub_effect = 0;
@@ -45,8 +45,12 @@ void DiceLikeDigits::update(datetime dt, bool time_is_synched, uint8_t dm) {
   pDisplayDriver->sync();
 }
 
+uint8_t DiceLikeDigits::getNumberOfSubEffects() {
+  return SUB_EFFECT_COUNT;
+}
+
 int DiceLikeDigits::nextSubEffect() {
-  selected_sub_effect = (selected_sub_effect + 1) % EFFECT_COUNT;
+  selected_sub_effect = (selected_sub_effect + 1) % SUB_EFFECT_COUNT;
   applySubEffect(selected_sub_effect);
 
   return selected_sub_effect;

@@ -23,9 +23,15 @@
 
 #include <stdlib.h>
 
+#define SUB_EFFECT_COUNT 3
+
 ColorExplosion::ColorExplosion(DisplayDriver *DD) : BaseEffect(DD) {
   k = 0;
   applySubEffect(0);
+}
+
+uint8_t ColorExplosion::getNumberOfSubEffects() {
+  return SUB_EFFECT_COUNT;
 }
 
 void ColorExplosion::applySubEffect(uint8_t sub_eff) {
@@ -45,7 +51,7 @@ void ColorExplosion::applySubEffect(uint8_t sub_eff) {
 }
 
 int ColorExplosion::nextSubEffect() {
-  applySubEffect((selected_sub_effect + 1) % 3);
+  applySubEffect((selected_sub_effect + 1) % SUB_EFFECT_COUNT);
 
   return selected_sub_effect;
 }

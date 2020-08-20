@@ -39,6 +39,10 @@ public:
 
   void update(datetime dt, bool time_is_synched, uint8_t dm);
 
+  uint8_t getNumberOfSubEffects();
+
+  void applySubEffect(uint8_t sub_eff);
+
   int nextSubEffect();
 
 private:

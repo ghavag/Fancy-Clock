@@ -23,6 +23,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+#include "config.h"
 #include "time.h"
 #include "lib/uart/uart.h"
 #include "lib/dcf77/DCF77.h"

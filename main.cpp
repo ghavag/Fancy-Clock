@@ -123,29 +123,110 @@ void loop() {
   int8_t cp_last_sec_value = -1;
   #endif
 
+  #if AUTO_EFFECT_MODE_CNT
+  uint8_t auto_effect_mode_playlist[AUTO_EFFECT_MODE_CNT];
+  bool auto_effect_mode_trigger = false;
+  uint8_t auto_effect_mode_cur_eff = 0;
+  int num_sub_effects;
+  #endif
+
   #ifdef DEBUG
   uint8_t debug_time_print_delay = 0;
   #endif
 
-  /* Instantiate all effets */
+  /* Instantiate all effects and put them on the playlist for auto effect mode if desired. */
+
+  // Simple Color
   SimpleColor eff_sc = SimpleColor(&DispDrv);
   effects[0] = &eff_sc;
+
+  #if AUTO_EFFECT_SIMPLE_COLOR
+  auto_effect_mode_playlist[selected_effect++] = 0;
+  #endif
+
+  // Random Colored Digit
   RandomColoredDigit eff_rcd = RandomColoredDigit(&DispDrv);
   effects[1] = &eff_rcd;
+
+  #if AUTO_EFFECT_RANDOM_COLORED_DIGIT
+  auto_effect_mode_playlist[selected_effect++] = 1;
+  #endif
+
+  // Fading Colors
   FadingColors eff_fc = FadingColors(&DispDrv);
   effects[2] = &eff_fc;
+
+  #if AUTO_EFFECT_FADING_COLORS
+  auto_effect_mode_playlist[selected_effect++] = 2;
+  #endif
+
+  // Fading Digits
   FadingDigits eff_fd = FadingDigits(&DispDrv);
   effects[3] = &eff_fd;
+
+  #if AUTO_EFFECT_FADING_DIGITS
+  auto_effect_mode_playlist[selected_effect++] = 3;
+  #endif
+
+  // Color Explosion
   ColorExplosion eff_ce = ColorExplosion(&DispDrv);
   effects[4] = &eff_ce;
+
+  #if AUTO_EFFECT_COLOR_EXPLOSION
+  auto_effect_mode_playlist[selected_effect++] = 4;
+  #endif
+
+  // Color Explosion Red
   ColorExplosionRed eff_cer = ColorExplosionRed(&DispDrv);
   effects[5] = &eff_cer;
+
+  #if AUTO_EFFECT_COLOR_EXPLOSION_RED
+  auto_effect_mode_playlist[selected_effect++] = 5;
+  #endif
+
+  // Color Explosion Green
   ColorExplosionGreen eff_ceg = ColorExplosionGreen(&DispDrv);
   effects[6] = &eff_ceg;
+
+  #if AUTO_EFFECT_COLOR_EXPLOSION_GREEN
+  auto_effect_mode_playlist[selected_effect++] = 6;
+  #endif
+
+  // Color Explosion Blue
   ColorExplosionBlue eff_ceb = ColorExplosionBlue(&DispDrv);
   effects[7] = &eff_ceb;
+
+  #if AUTO_EFFECT_COLOR_EXPLOSION_BLUE
+  auto_effect_mode_playlist[selected_effect++] = 7;
+  #endif
+
+  // Dice Like Digits
   DiceLikeDigits eff_dld = DiceLikeDigits(&DispDrv);
   effects[8] = &eff_dld;
+
+  #if AUTO_EFFECT_DICE_LIKE_DIGITS
+  auto_effect_mode_playlist[selected_effect++] = 8;
+  #endif
+
+  #if AUTO_EFFECT_MODE_CNT
+  selected_effect = 0;
+  #endif
+
+  /*****************************************************************************************/
+
+  // Initialize the random number generator
+  ds1302.clock_burst_read((uint8_t *) &rtc);
+  srand((uint16_t)(rtc.Seconds10 * 10 + rtc.Seconds + ((rtc.Minutes10 * 10 + rtc.Minutes) * 60) + ((rtc.h24.Hour10 * 10 + rtc.h24.Hour) * 3600)));
+
+  #if AUTO_EFFECT_MODE_CNT
+    #ifdef AUTO_EFFECT_MODE_RANDOMIZE
+      auto_effect_mode_cur_eff = rand() % AUTO_EFFECT_MODE_CNT;
+      selected_effect = auto_effect_mode_playlist[auto_effect_mode_cur_eff];
+      effects[selected_effect]->select();
+    #else
+      selected_effect = 0; // Reset to 0 because be we diverted selected_effect above to fill the auto effect mode playlist
+    #endif
+  #endif
 
   /* Dummy read of brightness potentiometer */
   ADCSRA |= _BV(ADSC);
@@ -209,6 +290,36 @@ void loop() {
 
         printf("Corrector second was applied.\n");
       }
+    #endif
+
+    #if AUTO_EFFECT_MODE_CNT
+    if (rtc.Minutes10 == 0) {
+      if (!auto_effect_mode_trigger) {
+        #ifdef AUTO_EFFECT_MODE_RANDOMIZE
+        auto_effect_mode_cur_eff = rand() % AUTO_EFFECT_MODE_CNT;
+        #else
+        auto_effect_mode_cur_eff = (auto_effect_mode_cur_eff + 1) % AUTO_EFFECT_MODE_CNT;
+        #endif
+
+        selected_effect = auto_effect_mode_playlist[auto_effect_mode_cur_eff];
+        effects[selected_effect]->select();
+
+        #ifdef DEBUG
+        printf("Auto effect mode: Select effect no. %i\r", selected_effect);
+        #endif
+
+        // Also choose a random sub-effect
+        num_sub_effects = effects[selected_effect]->getNumberOfSubEffects();
+
+        if (num_sub_effects > 0) {
+          effects[selected_effect]->applySubEffect(rand() % num_sub_effects);
+        }
+      }
+
+      auto_effect_mode_trigger = true;
+    } else {
+      auto_effect_mode_trigger = false;
+    }
     #endif
 
     /** Button handling **/

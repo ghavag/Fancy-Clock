@@ -38,12 +38,16 @@ BaseEffect::BaseEffect(DisplayDriver *DD) {
   blinking_colon_color.b = 0;
 }
 
+uint8_t BaseEffect::getNumberOfSubEffects() {
+  return 0;
+}
+
+void BaseEffect::applySubEffect(uint8_t sub_eff) {
+  return;
+}
+
 void BaseEffect::select() {
-  /*
-  * Set new seed for random number generator (rng) each time an effect is
-  * selected. For example in the generateRandomColor() method a rng is used.
-  */
-  srand(millis() % 0xFFFF);
+  return;
 }
 
 void BaseEffect::base_update(datetime dt, bool time_is_synched, uint8_t dm) {

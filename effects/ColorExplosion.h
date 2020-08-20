@@ -39,6 +39,10 @@ public:
 
   void update(datetime dt, bool time_is_synched, uint8_t dm);
 
+  uint8_t getNumberOfSubEffects();
+
+  void applySubEffect(uint8_t sub_eff);
+
   void select();
 
   int nextSubEffect();
@@ -50,14 +54,6 @@ protected:
   uint8_t delay; // Update only every delay update() method call
   uint8_t k = 0; // Counter to count from 0 to (deplay - 1)
   uint8_t old_dv[4]; // Holds the last displayed digits.
-
-  /*
-  * Activates a sub-effect
-  *
-  * Params:
-  *   sub_eff: Index of the sub-effect to be activated
-  */
-  void applySubEffect(uint8_t sub_eff);
 
   void setDigit(uint8_t index, uint8_t digit);
 

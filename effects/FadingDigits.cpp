@@ -25,7 +25,7 @@
 // 8 gives a transmission time of max. 1 second (1/32 * 256/8)
 #define FADING_DIGITS_SPEED 8
 
-#define EFFECT_COUNT 10
+#define SUB_EFFECT_COUNT 10
 
 FadingDigits::FadingDigits(DisplayDriver *DD) : BaseEffect(DD) {
   selected_sub_effect = 0;
@@ -54,8 +54,12 @@ void FadingDigits::update(datetime dt, bool time_is_synched, uint8_t dm) {
   pDisplayDriver->sync();
 }
 
+uint8_t FadingDigits::getNumberOfSubEffects() {
+  return SUB_EFFECT_COUNT;
+}
+
 int FadingDigits::nextSubEffect() {
-  selected_sub_effect = (selected_sub_effect + 1) % EFFECT_COUNT;
+  selected_sub_effect = (selected_sub_effect + 1) % SUB_EFFECT_COUNT;
   applySubEffect(selected_sub_effect);
 
   return selected_sub_effect;

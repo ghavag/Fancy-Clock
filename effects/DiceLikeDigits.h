@@ -40,14 +40,7 @@ public:
 
   void update(datetime dt, bool time_is_synched, uint8_t dm);
 
-  uint8_t getNumberOfSubEffects();
-
-  void applySubEffect(uint8_t sub_eff);
-
-  int nextSubEffect();
-
 private:
-  cRGB color; // Color currently used to display the time
   uint8_t selected_sub_effect; // Index of the current selected sub-effect
 
   void setDigit(uint8_t index, uint8_t digit, cRGB color);

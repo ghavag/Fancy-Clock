@@ -46,6 +46,10 @@ void BaseEffect::applySubEffect(uint8_t sub_eff) {
   return;
 }
 
+int BaseEffect::nextSubEffect() {
+  return 0;
+}
+
 void BaseEffect::select() {
   return;
 }

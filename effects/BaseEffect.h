@@ -113,7 +113,7 @@ public:
   *
   * return: The number of the selected sub-effect starting with zero.
   */
-  virtual int nextSubEffect() = 0;
+  virtual int nextSubEffect();
 
   /*
   * Sould be called on effect switch to notify the new effect that it has just

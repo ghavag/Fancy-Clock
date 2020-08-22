@@ -21,8 +21,6 @@
 
 #include "DiceLikeDigits.h"
 
-#define SUB_EFFECT_COUNT 7
-
 DiceLikeDigits::DiceLikeDigits(DisplayDriver *DD) : BaseEffect(DD) {
   selected_sub_effect = 0;
   applySubEffect(selected_sub_effect);
@@ -43,59 +41,6 @@ void DiceLikeDigits::update(datetime dt, bool time_is_synched, uint8_t dm) {
   setDigit(3, dv[3], getColor(2));
 
   pDisplayDriver->sync();
-}
-
-uint8_t DiceLikeDigits::getNumberOfSubEffects() {
-  return SUB_EFFECT_COUNT;
-}
-
-int DiceLikeDigits::nextSubEffect() {
-  selected_sub_effect = (selected_sub_effect + 1) % SUB_EFFECT_COUNT;
-  applySubEffect(selected_sub_effect);
-
-  return selected_sub_effect;
-}
-
-void DiceLikeDigits::applySubEffect(uint8_t sub_eff) {
-  switch (sub_eff) {
-    // Effect 0 handled by default branch
-    case 1:
-      color.r = 0;
-      color.g = 255;
-      color.b = 0;
-      break;
-    case 2:
-      color.r = 0;
-      color.g = 0;
-      color.b = 255;
-      break;
-    case 3:
-      color.r = 255;
-      color.g = 255;
-      color.b = 0;
-      break;
-    case 4:
-      color.r = 255;
-      color.g = 0;
-      color.b = 255;
-      break;
-    case 5:
-      color.r = 0;
-      color.g = 255;
-      color.b = 255;
-      break;
-    case 6:
-      color.r = 255;
-      color.g = 255;
-      color.b = 255;
-      break;
-    default:
-      color.r = 255;
-      color.g = 0;
-      color.b = 0;
-  }
-
-  blinking_colon_color = color;
 }
 
 void DiceLikeDigits::setDigit(uint8_t index, uint8_t digit, cRGB color) {

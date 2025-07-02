@@ -45,6 +45,29 @@
 #define AUTO_EFFECT_MODE_RANDOMIZE
 
 /*
+* Some effects are bright enough to lighten the whole room like on a full moon
+* night. This is not always desirable. If the night mode is active, the LEDs
+* will be dimmed to a thrid of their brightness.
+*/
+#define NIGHT_MODE
+
+#ifdef NIGHT_MODE
+    /* Hour of the (0 to 23) day when night begins and ends. */
+    #define NIGHT_MODE_BEGIN_HOUR 22
+    #define NIGHT_MODE_END_HOUR 6
+
+    #if NIGHT_MODE_BEGIN_HOUR > 23 or NIGHT_MODE_END_HOUR > 23
+        #error "NIGHT_MODE_[BEGIN|END]_HOUR must not be greater than 23."
+    #elif NIGHT_MODE_BEGIN_HOUR < 0 or NIGHT_MODE_END_HOUR < 0
+        #error "NIGHT_MODE_[BEGIN|END]_HOUR must not be less than 0."
+    #endif
+
+    #if NIGHT_MODE_BEGIN_HOUR == NIGHT_MODE_END_HOUR
+        #error "NIGHT_MODE_[BEGIN|END]_HOUR must not be the same."
+    #endif
+#endif // NIGHT_MODE
+
+/*
 * PART BELOW NOT MEANT TO BE CHANGED
 */
 

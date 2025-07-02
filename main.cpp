@@ -255,7 +255,7 @@ void loop() {
     if (abs(brightness_diff_cnt) > 6) {
       brightness_diff_cnt = 0;
       brightness_last_stable = brightness_last_read;
-      DispDrv.max_brightness = brightness_last_read;
+      DispDrv.max_brightness = is_night(&rtc) ? (brightness_last_read / 3) : brightness_last_read;
     }
 
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
@@ -433,6 +433,20 @@ inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d) {
   d->Year       = bin2bcd_l(s->Year + 1970 - 2000);
   d->Year10     = bin2bcd_h(s->Year + 1970 - 2000);
   d->WP = 0;
+}
+
+bool is_night(ds1302_struct *t) {
+  #ifdef NIGHT_MODE
+    int h = bcd2bin(t->h24.Hour10, t->h24.Hour);
+
+    #if NIGHT_MODE_BEGIN_HOUR > NIGHT_MODE_END_HOUR
+        return (h >= NIGHT_MODE_BEGIN_HOUR or h < NIGHT_MODE_END_HOUR);
+    #else
+        return = (h >= NIGHT_MODE_BEGIN_HOUR and h < NIGHT_MODE_END_HOUR);
+    #endif
+  #else // NIGHT_MODE
+    return false;
+  #endif // NIGHT_MODE
 }
 
 /*

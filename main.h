@@ -69,3 +69,13 @@ inline void convert_rtc2datetime(ds1302_struct *s, BaseEffect::datetime *d);
 *   *d: Pointer to the destination struct of type ds1302_struct
 */
 inline void convert_tmElements_t2rtc(tmElements_t *s, ds1302_struct *d);
+
+/*
+* Checks whether we are in the night hours.
+*
+* Params:
+*   *t: Pointer a struct of type ds1302_struct representing the current time.
+*
+* Returns true, if the current time is in between the defined night hour range.
+*/
+bool is_night(ds1302_struct *t);

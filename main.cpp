@@ -117,6 +117,8 @@ void loop() {
   uint8_t display_mode = 0;
   uint8_t brightness_last_read, brightness_diff_cnt = 0;
   int16_t brightness_last_stable = 0;
+  unsigned long wait_turns = 0;
+  uint8_t e = 0;
 
   #ifdef CORRECTOR_PERIOD
   unsigned int cp_past_seconds = 0;
@@ -138,74 +140,83 @@ void loop() {
 
   // Simple Color
   SimpleColor eff_sc = SimpleColor(&DispDrv);
-  effects[0] = &eff_sc;
+  effects[e] = &eff_sc;
 
   #if AUTO_EFFECT_SIMPLE_COLOR
-  auto_effect_mode_playlist[selected_effect++] = 0;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect SimpleColor to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Random Colored Digit
   RandomColoredDigit eff_rcd = RandomColoredDigit(&DispDrv);
-  effects[1] = &eff_rcd;
+  effects[++e] = &eff_rcd;
 
   #if AUTO_EFFECT_RANDOM_COLORED_DIGIT
-  auto_effect_mode_playlist[selected_effect++] = 1;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect RandomColoredDigit to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Fading Colors
   FadingColors eff_fc = FadingColors(&DispDrv);
-  effects[2] = &eff_fc;
+  effects[++e] = &eff_fc;
 
   #if AUTO_EFFECT_FADING_COLORS
-  auto_effect_mode_playlist[selected_effect++] = 2;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect FadingColors to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Fading Digits
   FadingDigits eff_fd = FadingDigits(&DispDrv);
-  effects[3] = &eff_fd;
+  effects[++e] = &eff_fd;
 
   #if AUTO_EFFECT_FADING_DIGITS
-  auto_effect_mode_playlist[selected_effect++] = 3;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect FadingDigits to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Color Explosion
   ColorExplosion eff_ce = ColorExplosion(&DispDrv);
-  effects[4] = &eff_ce;
+  effects[++e] = &eff_ce;
 
   #if AUTO_EFFECT_COLOR_EXPLOSION
-  auto_effect_mode_playlist[selected_effect++] = 4;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect ColorExplosion to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Color Explosion Red
   ColorExplosionRed eff_cer = ColorExplosionRed(&DispDrv);
-  effects[5] = &eff_cer;
+  effects[++e] = &eff_cer;
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_RED
-  auto_effect_mode_playlist[selected_effect++] = 5;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect ColorExplosionRed to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Color Explosion Green
   ColorExplosionGreen eff_ceg = ColorExplosionGreen(&DispDrv);
-  effects[6] = &eff_ceg;
+  effects[++e] = &eff_ceg;
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_GREEN
-  auto_effect_mode_playlist[selected_effect++] = 6;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect ColorExplosionGreen to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Color Explosion Blue
   ColorExplosionBlue eff_ceb = ColorExplosionBlue(&DispDrv);
-  effects[7] = &eff_ceb;
+  effects[++e] = &eff_ceb;
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_BLUE
-  auto_effect_mode_playlist[selected_effect++] = 7;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect ColorExplosionBlue to autoeffect mode playlist with index %u\n", e);
   #endif
 
   // Dice Like Digits
   DiceLikeDigits eff_dld = DiceLikeDigits(&DispDrv);
-  effects[8] = &eff_dld;
+  effects[++e] = &eff_dld;
 
   #if AUTO_EFFECT_DICE_LIKE_DIGITS
-  auto_effect_mode_playlist[selected_effect++] = 8;
+    auto_effect_mode_playlist[selected_effect++] = e;
+    printf("Add effect DiceLikeDigits to autoeffect mode playlist with index %u\n", e);
   #endif
 
   #if AUTO_EFFECT_MODE_CNT
@@ -381,6 +392,8 @@ void loop() {
 		printf("Time: %d.%d.%d %02d:%02d:%02d\n",
       bcd2bin(rtc.Date10, rtc.Date), bcd2bin(rtc.Month10, rtc.Month), 2000 + bcd2bin( rtc.Year10, rtc.Year),
       bcd2bin(rtc.h24.Hour10, rtc.h24.Hour), bcd2bin(rtc.Minutes10, rtc.Minutes), bcd2bin(rtc.Seconds10, rtc.Seconds));
+    printf("Wait turns: %lu\n", wait_turns/31);
+    wait_turns = 0;
 	} else {
 		debug_time_print_delay++;
 	}
@@ -390,7 +403,7 @@ void loop() {
     * Waiting for 32 milliseconds results in calling the update() method of the
     * effects ~31 times per second.
     */
-    while (millis() - var_millis < 32);
+    while (millis() - var_millis < 32) wait_turns++;
   }
 }
 

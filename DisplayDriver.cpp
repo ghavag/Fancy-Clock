@@ -26,7 +26,8 @@ DisplayDriver::DisplayDriver(const volatile uint8_t* port, volatile uint8_t* reg
   setOutput(port, reg, pin);
   setColorOrderRGB();
 
-  max_brightness = 0;
+  max_brightness = max_brightness_applied = 0;
+  night_mode = false;
 
   init();
 }
@@ -103,9 +104,9 @@ void DisplayDriver::setDigit(uint8_t index, uint8_t digit, cRGB color) {
 }
 
 uint8_t DisplayDriver::setLED(uint16_t index, cRGB px_value) {
-  px_value.r *= (double)max_brightness / 255;
-  px_value.g *= (double)max_brightness / 255;
-  px_value.b *= (double)max_brightness / 255;
+  px_value.r *= (double)max_brightness_applied / 255;
+  px_value.g *= (double)max_brightness_applied / 255;
+  px_value.b *= (double)max_brightness_applied / 255;
 
   set_crgb_at(index, px_value);
 }
@@ -116,4 +117,13 @@ cRGB DisplayDriver::getLED(uint16_t index) {
 
 void DisplayDriver::sync() {
   WS2812::sync();
+}
+
+void DisplayDriver::setMaxBrightness(uint8_t mb) {
+  max_brightness = mb;
+  max_brightness_applied = night_mode ? (mb / 3) : mb;
+}
+
+uint8_t DisplayDriver::getMaxBrightness() {
+  return max_brightness;
 }

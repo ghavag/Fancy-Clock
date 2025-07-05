@@ -63,9 +63,9 @@ void ColorExplosion::update(datetime dt, bool time_is_synched, uint8_t dm) {
   base_update(dt, time_is_synched, dm);
   getDigitValues(dv, dm);
 
-  if (old_max_brightness != pDisplayDriver->max_brightness) {
+  if (old_max_brightness != pDisplayDriver->getMaxBrightness()) {
     k = 0;
-    old_max_brightness = pDisplayDriver->max_brightness;
+    old_max_brightness = pDisplayDriver->getMaxBrightness();
   } else if (delay == 0) {
     k = 1;
 

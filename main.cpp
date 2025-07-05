@@ -120,7 +120,6 @@ void loop() {
   int16_t brightness_last_stable = 0;
   unsigned long wait_turns = 0;
   uint8_t e = 0;
-  bool night_mode = false;
 
   #ifdef CORRECTOR_PERIOD
   unsigned int cp_past_seconds = 0;
@@ -232,7 +231,7 @@ void loop() {
   ds1302.clock_burst_read((uint8_t *) &rtc);
   srand((uint16_t)(rtc.Seconds10 * 10 + rtc.Seconds + ((rtc.Minutes10 * 10 + rtc.Minutes) * 60) + ((rtc.h24.Hour10 * 10 + rtc.h24.Hour) * 3600)));
 
-  night_mode = is_night(&rtc);
+  DispDrv.night_mode = is_night(&rtc);
 
   #if AUTO_EFFECT_MODE_CNT
     #ifdef AUTO_EFFECT_MODE_RANDOMIZE
@@ -271,7 +270,7 @@ void loop() {
     if (abs(brightness_diff_cnt) > 6) {
       brightness_diff_cnt = 0;
       brightness_last_stable = brightness_last_read;
-      DispDrv.max_brightness = night_mode ? (brightness_last_read / 3) : brightness_last_read;
+      DispDrv.setMaxBrightness(brightness_last_read);
     }
 
     ADCSRA |= _BV(ADSC); // Start the next measurement (to be read next cycle)
@@ -311,7 +310,7 @@ void loop() {
     #if AUTO_EFFECT_MODE_CNT
     if (rtc.Minutes10 == 0) {
       if (!auto_effect_mode_trigger) {
-        night_mode = is_night(&rtc);
+        DispDrv.night_mode = is_night(&rtc);
 
         #ifdef AUTO_EFFECT_MODE_RANDOMIZE
         auto_effect_mode_cur_eff = rand() % AUTO_EFFECT_MODE_CNT;

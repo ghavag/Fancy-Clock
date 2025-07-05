@@ -34,7 +34,10 @@
 
 class DisplayDriver : private WS2812 {
 public:
-  uint8_t max_brightness;
+  /*
+  * Indicate whether we are in night more (true) or not.
+  */
+  bool night_mode;
 
   /*
   * Class constructor
@@ -94,7 +97,20 @@ public:
   */
   void sync();
 
+  /*
+  * Set max brightness.
+  */
+  void setMaxBrightness(uint8_t mb);
+
+  /*
+  * Get max brightness.
+  */
+  uint8_t getMaxBrightness();
+
 private:
+  uint8_t max_brightness;
+  uint8_t max_brightness_applied;
+
   /*
   * Does some initialization work for the display
   */

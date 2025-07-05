@@ -138,6 +138,7 @@ void loop() {
   #endif
 
   /* Instantiate all effects and put them on the playlist for auto effect mode if desired. */
+  const char add_pl_fmt[] = "Add effect %s (index %u) to autoeffect mode playlist.\n";
 
   // Simple Color
   SimpleColor eff_sc = SimpleColor(&DispDrv);
@@ -145,7 +146,7 @@ void loop() {
 
   #if AUTO_EFFECT_SIMPLE_COLOR
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect SimpleColor to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "SimpleColor", e);
   #endif
 
   // Random Colored Digit
@@ -154,7 +155,7 @@ void loop() {
 
   #if AUTO_EFFECT_RANDOM_COLORED_DIGIT
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect RandomColoredDigit to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "RandomColoredDigit", e);
   #endif
 
   // Fading Colors
@@ -163,7 +164,7 @@ void loop() {
 
   #if AUTO_EFFECT_FADING_COLORS
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect FadingColors to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "FadingColors", e);
   #endif
 
   // Fading Digits
@@ -172,7 +173,7 @@ void loop() {
 
   #if AUTO_EFFECT_FADING_DIGITS
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect FadingDigits to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "FadingDigits", e);
   #endif
 
   // Color Explosion
@@ -181,7 +182,7 @@ void loop() {
 
   #if AUTO_EFFECT_COLOR_EXPLOSION
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect ColorExplosion to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "ColorExplosion", e);
   #endif
 
   // Color Explosion Red
@@ -190,7 +191,7 @@ void loop() {
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_RED
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect ColorExplosionRed to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "ColorExplosionRed", e);
   #endif
 
   // Color Explosion Green
@@ -199,7 +200,7 @@ void loop() {
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_GREEN
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect ColorExplosionGreen to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "ColorExplosionGreen", e);
   #endif
 
   // Color Explosion Blue
@@ -208,7 +209,7 @@ void loop() {
 
   #if AUTO_EFFECT_COLOR_EXPLOSION_BLUE
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect ColorExplosionBlue to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "ColorExplosionBlue", e);
   #endif
 
   // Dice Like Digits
@@ -217,7 +218,7 @@ void loop() {
 
   #if AUTO_EFFECT_DICE_LIKE_DIGITS
     auto_effect_mode_playlist[selected_effect++] = e;
-    printf("Add effect DiceLikeDigits to autoeffect mode playlist with index %u\n", e);
+    printf(add_pl_fmt, "DiceLikeDigits", e);
   #endif
 
   #if AUTO_EFFECT_MODE_CNT

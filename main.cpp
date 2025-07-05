@@ -98,6 +98,7 @@ int main(void) {
   EIMSK |= _BV(INT0); // Enable interrupt INT0
   sei();
 
+  printf("\nI am Fancy Clock! Calling loop().\n");
   loop(); // Call the main loop (function that never returns)
 
   return 0;

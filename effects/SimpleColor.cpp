@@ -37,51 +37,55 @@ void SimpleColor::update(datetime dt, bool time_is_synched, uint8_t dm) {
 }
 
 uint8_t SimpleColor::getNumberOfSubEffects() {
-  return SUB_EFFECT_COUNT;
+  // In night mode use only the first three subeffects as
+  // they use only one color and thus are less bright.
+  return (pDisplayDriver->getNightMode()) ? 3 : SUB_EFFECT_COUNT;
 }
 
 int SimpleColor::nextSubEffect() {
-  selected_sub_effect = (selected_sub_effect + 1) % SUB_EFFECT_COUNT;
+  selected_sub_effect = (selected_sub_effect + 1) % getNumberOfSubEffects();
   applySubEffect(selected_sub_effect);
 
   return selected_sub_effect;
 }
 
 void SimpleColor::applySubEffect(uint8_t sub_eff) {
+  uint8_t v = pDisplayDriver->night_mode ? 100 : 255;
+
   switch (sub_eff) {
     // Effect 0 handled by default branch
     case 1:
       color.r = 0;
-      color.g = 255;
+      color.g = v;
       color.b = 0;
       break;
     case 2:
       color.r = 0;
       color.g = 0;
-      color.b = 255;
+      color.b = v;
       break;
     case 3:
-      color.r = 255;
-      color.g = 255;
+      color.r = v;
+      color.g = v;
       color.b = 0;
       break;
     case 4:
-      color.r = 255;
+      color.r = v;
       color.g = 0;
-      color.b = 255;
+      color.b = v;
       break;
     case 5:
       color.r = 0;
-      color.g = 255;
-      color.b = 255;
+      color.g = v;
+      color.b = v;
       break;
     case 6:
-      color.r = 255;
-      color.g = 255;
-      color.b = 255;
+      color.r = v;
+      color.g = v;
+      color.b = v;
       break;
     default:
-      color.r = 255;
+      color.r = v;
       color.g = 0;
       color.b = 0;
   }

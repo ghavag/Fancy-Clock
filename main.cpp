@@ -231,7 +231,7 @@ void loop() {
   ds1302.clock_burst_read((uint8_t *) &rtc);
   srand((uint16_t)(rtc.Seconds10 * 10 + rtc.Seconds + ((rtc.Minutes10 * 10 + rtc.Minutes) * 60) + ((rtc.h24.Hour10 * 10 + rtc.h24.Hour) * 3600)));
 
-  DispDrv.night_mode = is_night(&rtc);
+  DispDrv.setNightMode(is_night(&rtc));
 
   #if AUTO_EFFECT_MODE_CNT
     #ifdef AUTO_EFFECT_MODE_RANDOMIZE
@@ -310,7 +310,7 @@ void loop() {
     #if AUTO_EFFECT_MODE_CNT
     if (rtc.Minutes10 == 0) {
       if (!auto_effect_mode_trigger) {
-        DispDrv.night_mode = is_night(&rtc);
+        DispDrv.setNightMode(is_night(&rtc));
 
         #ifdef AUTO_EFFECT_MODE_RANDOMIZE
         auto_effect_mode_cur_eff = rand() % AUTO_EFFECT_MODE_CNT;

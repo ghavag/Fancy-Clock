@@ -35,11 +35,6 @@
 class DisplayDriver : private WS2812 {
 public:
   /*
-  * Indicate whether we are in night more (true) or not.
-  */
-  bool night_mode;
-
-  /*
   * Class constructor
   */
   DisplayDriver(const volatile uint8_t* port, volatile uint8_t* reg, uint8_t pin);
@@ -107,9 +102,27 @@ public:
   */
   uint8_t getMaxBrightness();
 
+  /*
+  * Set night mode
+  *
+  * Params:
+  *   nm: True if night mode is active, false otherwise
+  */
+  void setNightMode(bool nm);
+
+  /*
+  * Returns true if night mode is active and false otherwise
+  */
+  bool getNightMode();
+
 private:
   uint8_t max_brightness;
   uint8_t max_brightness_applied;
+
+  /*
+  * Indicate whether we are in night more (true) or not.
+  */
+  bool night_mode;
 
   /*
   * Does some initialization work for the display

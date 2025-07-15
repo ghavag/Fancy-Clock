@@ -128,3 +128,12 @@ void DisplayDriver::setMaxBrightness(uint8_t mb) {
 uint8_t DisplayDriver::getMaxBrightness() {
   return max_brightness;
 }
+
+void DisplayDriver::setNightMode(bool nm) {
+  night_mode = nm;
+  setMaxBrightness(max_brightness);
+}
+
+bool DisplayDriver::getNightMode() {
+  return night_mode;
+}

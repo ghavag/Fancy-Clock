@@ -50,7 +50,7 @@ int SimpleColor::nextSubEffect() {
 }
 
 void SimpleColor::applySubEffect(uint8_t sub_eff) {
-  uint8_t v = pDisplayDriver->night_mode ? 100 : 255;
+  uint8_t v = pDisplayDriver->getNightMode() ? 127 : 255;
 
   switch (sub_eff) {
     // Effect 0 handled by default branch

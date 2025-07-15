@@ -47,8 +47,6 @@ void RandomColoredDigit::update(datetime dt, bool time_is_synched, uint8_t dm) {
 }
 
 int RandomColoredDigit::nextSubEffect() {
-  srand(millis() % 0xFFFF);
-
   blinking_colon_color = generateRandomColor();
   color_digit[0] = generateRandomColor();
   color_digit[1] = generateRandomColor();

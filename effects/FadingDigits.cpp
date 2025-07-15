@@ -101,7 +101,6 @@ void FadingDigits::applySubEffect(uint8_t sub_eff) {
     case 7:
     case 8:
     case 9:
-      srand(millis() % 0xFFFF);
       color = generateRandomColor();
       break;
     default:

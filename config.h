@@ -65,6 +65,12 @@
     #if NIGHT_MODE_BEGIN_HOUR == NIGHT_MODE_END_HOUR
         #error "NIGHT_MODE_[BEGIN|END]_HOUR must not be the same."
     #endif
+
+    /*
+    * In night mode the current set brightness
+    * is divided by NIGHT_MODE_BDIV.
+    */
+    #define NIGHT_MODE_BDIV 4
 #endif // NIGHT_MODE
 
 /*

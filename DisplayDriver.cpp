@@ -20,6 +20,7 @@
 
 #include "DisplayDriver.h"
 #include <stdlib.h>
+#include "config.h"
 
 DisplayDriver::DisplayDriver(const volatile uint8_t* port, volatile uint8_t* reg, uint8_t pin) : WS2812(LEDCount) {
   // Call some setup routines from the parent class / Light WS 2812 library
@@ -121,7 +122,7 @@ void DisplayDriver::sync() {
 
 void DisplayDriver::setMaxBrightness(uint8_t mb) {
   max_brightness = mb;
-  max_brightness_applied = night_mode ? (mb / 3) : mb;
+  max_brightness_applied = night_mode ? (mb / NIGHT_MODE_BDIV) : mb;
 }
 
 uint8_t DisplayDriver::getMaxBrightness() {

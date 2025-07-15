@@ -241,6 +241,18 @@ void loop() {
     #else
       selected_effect = 0; // Reset to 0 because be we diverted selected_effect above to fill the auto effect mode playlist
     #endif
+
+    #ifdef DEBUG
+      printf("Auto effect mode: Select effect no. %i\r", selected_effect);
+    #endif
+
+    // Also choose a random sub-effect
+    num_sub_effects = effects[selected_effect]->getNumberOfSubEffects();
+
+    if (num_sub_effects > 0) {
+      printf("num_sub_effects=%i\n", num_sub_effects);
+      effects[selected_effect]->applySubEffect(rand() % num_sub_effects);
+    }
   #endif
 
   /* Dummy read of brightness potentiometer */
